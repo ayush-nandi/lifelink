@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Create Event | LifeLink</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    #map { height: 300px; border-radius: 1rem; }
+  </style>
+</head>
+
+<body class="bg-gradient-to-br from-red-50 to-white min-h-screen">
+
+  <nav class="bg-white shadow px-6 py-4 flex justify-between items-center">
+    <h1 class="text-xl font-extrabold text-red-600">LifeLink</h1>
+    <a href="dashboard.html" class="text-sm text-gray-600 hover:text-red-600">← Dashboard</a>
+  </nav>
+
+  <main class="max-w-3xl mx-auto px-6 py-10">
+    <h2 class="text-3xl font-extrabold mb-6">Create Donation Event</h2>
+
+    <form id="eventForm" class="bg-white p-6 rounded-3xl shadow space-y-4">
+
+      <input
+        id="eventTitle"
+        type="text"
+        placeholder="Event name (e.g. Campus Blood Drive)"
+        required
+        class="w-full p-3 rounded-xl border"
+      />
+
+      <select id="donationType" required class="w-full p-3 rounded-xl border">
+        <option value="">Donation type</option>
+        <option value="blood">Blood</option>
+        <option value="plasma">Plasma</option>
+        <option value="platelets">Platelets</option>
+        <option value="stem">Stem Cells</option>
+      </select>
+
+      <select id="mode" required class="w-full p-3 rounded-xl border">
+        <option value="">Mode</option>
+        <option value="offline">Offline (donation camp)</option>
+        <option value="online">Online (collection from donors)</option>
+      </select>
+
+      <div class="grid grid-cols-2 gap-3">
+        <input id="startDate" type="date" required class="p-3 rounded-xl border" />
+        <input id="endDate" type="date" required class="p-3 rounded-xl border" />
+      </div>
+
+      <select id="radius" required class="w-full p-3 rounded-xl border">
+        <option value="">Service radius</option>
+        <option value="5">5 km</option>
+        <option value="10">10 km</option>
+      </select>
+
+      <input
+        id="locationText"
+        type="text"
+        placeholder="Location description (e.g. Salt Lake Sector V)"
+        required
+        class="w-full p-3 rounded-xl border"
+      />
+
+      <p class="font-semibold text-sm text-gray-600">Search & select event location</p>
+
+ <div class="flex gap-2 mb-3">
+  <input
+    id="locationSearchInput"
+    type="text"
+    placeholder="Search area (e.g. Salt Lake, New Town)"
+    class="flex-1 p-3 rounded-xl border"
+  />
+  <button
+    type="button"
+    id="searchLocationBtn"
+    class="bg-slate-900 text-white px-4 rounded-xl font-semibold"
+  >
+    Search
+  </button>
+</div>
+
+ <div id="map"></div>
+
+
+      <button
+        type="submit"
+        class="w-full bg-red-600 text-white py-3 rounded-xl font-bold"
+      >
+        Create Event
+      </button>
+
+    </form>
+  </main>
+
+  <script type="module" src="./js/create-event.js"></script>
+</body>
+</html>
