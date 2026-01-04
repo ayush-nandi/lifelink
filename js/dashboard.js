@@ -37,7 +37,7 @@ onAuthStateChanged(auth, async (user) => {
   receiveBtn.onclick = () => window.location.href = "receive.html";
 
   // Donor
-  if (data.role === "donor") {
+  if (data.role === "user") {
     hostBtn.classList.remove("hidden");
     hostBtn.onclick = () => window.location.href = "host.html";
   }
