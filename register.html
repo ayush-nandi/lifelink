@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Partner Registration - MediFinder</title>
+    <link rel="stylesheet" href="shops.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <div class="container" style="max-width: 600px; margin-top: 30px;">
+        <h1>Register Your Shop</h1>
+        <p style="color:gray; font-size: 0.9em;">Join our verified network of pharmacies.</p>
+
+        <div class="shop-card" style="display:block;">
+            
+            <label>Shop Name:</label>
+            <input type="text" id="name" placeholder="e.g. Apollo Pharmacy" style="width:100%; padding:10px; margin-bottom:10px;">
+
+            <label>Address (Area/Street):</label>
+            <input type="text" id="address" placeholder="e.g. Salt Lake Sector 5" style="width:100%; padding:10px; margin-bottom:10px;">
+
+            <label>Pincode:</label>
+            <input type="text" id="pincode" placeholder="e.g. 700091" style="width:100%; padding:10px; margin-bottom:10px;">
+
+            <label>Phone Number:</label>
+            <input type="text" id="phone" placeholder="e.g. 9876543210" style="width:100%; padding:10px; margin-bottom:10px;">
+
+            <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px; background: #e8f5e9; padding: 10px; border-radius: 5px;">
+                <input type="checkbox" id="isOpen247" style="width: 20px; height: 20px;">
+                <label for="isOpen247" style="margin: 0; font-weight: bold; color: #2e7d32;">This shop is open 24/7 (Emergency Service)</label>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid #ddd; margin: 20px 0;">
+            <h3 style="margin-bottom: 15px;">Official Verification Documents</h3>
+
+            <label>Drug License Number (DL No.):</label>
+            <input type="text" id="dlNum" placeholder="e.g. WB/KOL/1234/2023" style="width:100%; padding:10px; margin-bottom:10px; border: 1px solid #007bff;">
+
+            <label>Owner's PAN Card Number:</label>
+            <input type="text" id="panNum" placeholder="e.g. ABCDE1234F" style="width:100%; padding:10px; margin-bottom:10px; border: 1px solid #007bff;">
+
+            <label>GSTIN:</label>
+            <input type="text" id="gstin" placeholder="22AAAAA0000A1Z5" style="width:100%; padding:10px; margin-bottom:10px; border: 1px solid #007bff;">
+            
+            <small style="display:block; margin-bottom:15px; color:red;">* Official documents are for internal verification only and will NOT be public.</small>
+            
+            <button onclick="registerShop()" style="width:100%; padding:12px; background:#007bff; color:white; border:none; font-size: 16px; cursor: pointer; border-radius: 5px;">
+                Submit for Verification
+            </button>
+            <p id="msg" style="margin-top:10px; font-weight: bold;"></p>
+        </div>
+        <br>
+        <a href="shops.html">Back to Map</a>
+    </div>
+
+    <script>
+        // --- 1. FIREBASE CONFIG ---
+        // PASTE YOUR REAL KEYS HERE
+        const firebaseConfig = {
+            apiKey: "AIzaSyAr3oQxAOXOtFeQIdm83dMaLj2n2ibsHYk",
+            authDomain: "lifelink-a61c1.firebaseapp.com",
+            projectId: "lifelink-a61c1",
+            storageBucket: "lifelink-a61c1.appspot.com",
+            messagingSenderId: "473418229264",
+            appId: "1:473418229264:web:628e0e8286d2b20cf40c95"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // --- 2. REGISTRATION LOGIC ---
+        async function registerShop() {
+            // Get Values
+            const name = document.getElementById('name').value;
+            const address = document.getElementById('address').value;
+            const pincode = document.getElementById('pincode').value;
+            const phone = document.getElementById('phone').value;
+            const dlNum = document.getElementById('dlNum').value;
+            const panNum = document.getElementById('panNum').value;
+            const gstin = document.getElementById('gstin').value;
+            const isOpen247 = document.getElementById('isOpen247').checked; // Get Checkbox (true/false)
+            
+            const msg = document.getElementById('msg');
+
+            // Validation
+            if(!name || !address || !pincode || !phone || !dlNum || !panNum) {
+                return alert("Please fill all required fields (Name, Address, Phone, DL, PAN).");
+            }
+
+            msg.innerText = "Verifying location...";
+            msg.style.color = "blue";
+
+            try {
+                // A. Geocode
+                const fullAddress = `${address}, ${pincode}`;
+                const geoUrl = `https://nominatim.openstreetmap.org/search?q=${fullAddress}&format=json&limit=1`;
+                const response = await fetch(geoUrl);
+                const data = await response.json();
+
+                if (data.length === 0) {
+                    msg.innerText = "Location not found! Check address/pincode.";
+                    msg.style.color = "red";
+                    return;
+                }
+
+                // B. Save to Firebase
+                await db.collection('shops').add({
+                    name: name,
+                    address: address,
+                    pincode: pincode,
+                    phone: phone,
+                    // Private Data
+                    gstin: gstin, 
+                    dlNum: dlNum, 
+                    panNum: panNum,
+                    // Public Data
+                    isOpen247: isOpen247, // Checkbox value
+                    lat: parseFloat(data[0].lat),
+                    lon: parseFloat(data[0].lon),
+                    status: 'pending',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                msg.innerText = "Success! Application submitted for review.";
+                msg.style.color = "green";
+                
+                // Clear form
+                document.getElementById('name').value = "";
+                document.getElementById('dlNum').value = "";
+                document.getElementById('panNum').value = "";
+
+            } catch (err) {
+                console.error(err);
+                msg.innerText = "Error submitting application.";
+                msg.style.color = "red";
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediFinder - Nearest Medical Shops</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <link rel="stylesheet" href="shops.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-clinic-medical"></i> MediFinder</h1>
+            
+            <div class="search-container">
+                <div class="search-box">
+                    <input type="text" id="locationInput" placeholder="Enter Pincode or City Name">
+                    <button onclick="findShopsByText()">Search</button>
+                </div>
+                
+                <div class="divider">OR</div>
+
+                <button id="geoBtn" onclick="findShopsByGeo()">
+                    <i class="fas fa-location-arrow"></i> Use My Current Location
+                </button>
+            </div>
+        </header>
+
+        <div id="resultSection" style="display:none;">
+            <div id="map"></div>
+            <div class="shop-list-container">
+                <h2>Nearby Medical Shops (<span id="shopCount">0</span>)</h2>
+                <div id="shopList"></div>
+                <div class="pagination">
+                    <button id="prevBtn" onclick="changePage(-1)" disabled>Previous</button>
+                    <span id="pageIndicator">Page 1</span>
+                    <button id="nextBtn" onclick="changePage(1)">Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="shops.js"></script>
+</body>
+</html>

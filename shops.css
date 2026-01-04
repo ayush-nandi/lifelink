@@ -1,0 +1,241 @@
+/* --- 1. GLOBAL VARIABLES & RESET --- */
+:root {
+    /* "Healing Green" Palette - Trustworthy & Professional */
+    --primary-green: #2E7D32;  /* Deep Forest Green (Medical) */
+    --light-green: #E8F5E9;    /* Very soft mint for backgrounds */
+    --accent-green: #00C853;   /* Bright Green for active states */
+    --text-dark: #2c3e50;      /* Dark Blue-Grey for text (easier on eyes than black) */
+    --text-grey: #607d8b;
+    --white: #ffffff;
+    --shadow: 0 4px 15px rgba(0, 0, 0, 0.08); /* Soft modern shadow */
+    --radius: 12px;
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--light-green); /* Subtle medical background */
+    color: var(--text-dark);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px 20px;
+}
+
+/* --- 2. HEADER & SEARCH SECTION --- */
+header {
+    text-align: center;
+    margin-bottom: 40px;
+    background: var(--white);
+    padding: 30px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+header h1 {
+    color: var(--primary-green);
+    margin: 0 0 20px 0;
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.search-box {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Modern Input Field */
+.search-box input {
+    padding: 12px 20px;
+    width: 350px;
+    font-size: 16px;
+    border: 2px solid #ddd;
+    border-radius: 30px; /* Fully rounded pill shape */
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.search-box input:focus {
+    border-color: var(--primary-green);
+    box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.1);
+}
+
+/* --- 3. BUTTONS (Refined) --- */
+button {
+    padding: 12px 25px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    border-radius: 30px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Search Button - Primary */
+.search-box button {
+    background: var(--primary-green);
+    color: var(--white);
+    box-shadow: 0 4px 6px rgba(46, 125, 50, 0.2);
+}
+
+.search-box button:hover {
+    background: #1B5E20; /* Darker green on hover */
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(46, 125, 50, 0.3);
+}
+
+/* "Use My Location" Button - Secondary/Accent */
+#geoBtn {
+    background-color: var(--white);
+    color: var(--primary-green);
+    border: 2px solid var(--primary-green);
+}
+
+#geoBtn:hover {
+    background-color: var(--light-green);
+    transform: translateY(-2px);
+}
+
+/* --- 4. MAP SECTION --- */
+#map {
+    height: 450px;
+    width: 100%;
+    border-radius: var(--radius);
+    margin-bottom: 30px;
+    border: 4px solid var(--white); /* White frame effect */
+    box-shadow: var(--shadow);
+    z-index: 1; /* Ensures it sits correctly */
+}
+
+/* --- 5. SHOP LIST CARDS --- */
+.shop-list-container h2 {
+    color: var(--text-dark);
+    border-left: 5px solid var(--accent-green);
+    padding-left: 15px;
+    margin-bottom: 25px;
+}
+
+.shop-card {
+    background: var(--white);
+    padding: 20px;
+    margin-bottom: 15px;
+    border-radius: var(--radius);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border-left: 4px solid transparent; /* Hidden border for hover effect */
+}
+
+.shop-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    border-left: 4px solid var(--accent-green); /* Green accent on hover */
+}
+
+.shop-info h3 {
+    margin: 0 0 8px 0;
+    color: var(--primary-green);
+    font-size: 1.2rem;
+}
+
+.shop-info p {
+    margin: 5px 0;
+    color: var(--text-grey);
+    font-size: 0.95rem;
+}
+
+/* Distance Badge */
+.distance-badge {
+    background: var(--light-green);
+    color: var(--primary-green);
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-weight: 700;
+    font-size: 12px;
+    display: inline-block;
+    margin-top: 5px;
+}
+
+/* Directions Button (Inside Card) */
+.direction-btn {
+    text-decoration: none;
+    background: linear-gradient(135deg, var(--primary-green), #43A047); /* Subtle gradient */
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 4px 6px rgba(46, 125, 50, 0.2);
+    transition: all 0.3s;
+}
+
+.direction-btn:hover {
+    box-shadow: 0 6px 12px rgba(46, 125, 50, 0.4);
+    filter: brightness(1.1);
+}
+
+/* --- 6. PAGINATION --- */
+.pagination {
+    text-align: center;
+    margin-top: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+}
+
+.pagination button {
+    background: var(--white);
+    color: var(--text-dark);
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
+.pagination button:hover:not(:disabled) {
+    background: var(--primary-green);
+    color: white;
+    border-color: var(--primary-green);
+}
+
+.pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #f9f9f9;
+}
+
+#pageIndicator {
+    font-weight: bold;
+    color: var(--text-grey);
+}
+
+/* --- 7. RESPONSIVE DESIGN --- */
+@media (max-width: 768px) {
+    .search-box input {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    .shop-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .direction-btn {
+        width: 100%;
+        display: block;
+        text-align: center;
+    }
+}
