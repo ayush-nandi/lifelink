@@ -220,6 +220,90 @@ button {
     color: var(--text-grey);
 }
 
+/* --- NEW NAVBAR STYLES --- */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--white);
+    padding: 15px 30px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 30px;
+}
+
+.logo {
+    color: var(--primary-green);
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin: 0; /* Removes default H1 margin */
+}
+
+/* Navigation Buttons */
+.nav-links {
+    display: flex;
+    gap: 15px;
+}
+
+.nav-btn {
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+/* "Register" - Filled Green */
+.nav-btn {
+    background-color: var(--primary-green);
+    color: white;
+}
+
+.nav-btn:hover {
+    background-color: #1B5E20;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(46, 125, 50, 0.2);
+}
+
+/* "Manage" - Outline Style */
+.nav-btn.outline {
+    background-color: transparent;
+    border: 2px solid var(--primary-green);
+    color: var(--primary-green);
+}
+
+.nav-btn.outline:hover {
+    background-color: var(--light-green);
+}
+
+/* --- SEARCH HERO STYLES --- */
+.search-hero {
+    background: var(--white);
+    padding: 40px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* Ensure search container stacks vertically like before */
+.search-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Responsive adjustment for mobile */
+@media (max-width: 600px) {
+    .navbar {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+}
+
 /* --- 7. RESPONSIVE DESIGN --- */
 @media (max-width: 768px) {
     .search-box input {

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MediFinder - Nearest Medical Shops</title>
+    <title>LifeLink - Find Medical Shops</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="shops.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -11,9 +11,16 @@
 <body>
 
     <div class="container">
-        <header>
-            <h1><i class="fas fa-clinic-medical"></i> MediFinder</h1>
-            
+        
+        <nav class="navbar">
+            <h1 class="logo">LifeLink</h1>
+            <div class="nav-links">
+                <a href="register.html" class="nav-btn">Register Shop</a>
+                <a href="manage-shop.html" class="nav-btn outline">Manage Shop</a>
+            </div>
+        </nav>
+
+        <div class="search-hero">
             <div class="search-container">
                 <div class="search-box">
                     <input type="text" id="locationInput" placeholder="Enter Pincode or City Name">
@@ -26,7 +33,7 @@
                     <i class="fas fa-location-arrow"></i> Use My Current Location
                 </button>
             </div>
-        </header>
+        </div>
 
         <div id="resultSection" style="display:none;">
             <div id="map"></div>
