@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeLink</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* --- COLORS --- */
+            --header-bg: #c0392b; /* Deep Industrial Red */
+            --header-text: #ffffff;
+            
+            /* Button Colors */
+            --donation-bg: #ff7675; /* Lighter Red / Coral */
+            --hospital-bg: #0984e3; /* Strong Blue */
+            --medical-bg: #00b894; /* Mint Green */
+            --events-bg: #ffeaa7; /* Soft Yellow */
+            
+            --bg-color: #dfe6e9;
+            --footer-bg: #2d3436; /* Dark Charcoal for footer */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- Header --- */
+        header {
+            background-color: var(--header-bg);
+            padding: 0 4rem;
+            height: 90px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 800; 
+            color: white;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .nav-btn {
+            text-decoration: none;
+            color: var(--header-bg);
+            background-color: white;
+            padding: 10px 25px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1rem;
+            text-transform: uppercase;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+            background-color: #f1f1f1;
+        }
+
+        /* --- Main Content --- */
+        main {
+            min-height: calc(100vh - 90px); 
+            padding: 3rem 4rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 2rem;
+            max-width: 1920px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* --- Card Styling --- */
+        .card {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+            color: white;
+            font-size: 3rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            text-align: center;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), 
+                        box-shadow 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        filter 0.3s ease;
+            min-height: 300px; 
+        }
+
+        .card span {
+            z-index: 2;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            filter: brightness(1.1);
+            z-index: 2;
+        }
+        
+        .card:active { transform: scale(0.98); }
+
+        .donation { background: linear-gradient(135deg, var(--donation-bg), #e15f41); }
+        .hospital { background: linear-gradient(135deg, var(--hospital-bg), #00cec9); }
+        .medical  { background: linear-gradient(135deg, var(--medical-bg), #00b894); }
+        .events   { background: linear-gradient(135deg, var(--events-bg), #fdcb6e); color: white; }
+
+        /* --- Footer Section --- */
+        footer {
+            background-color: var(--footer-bg);
+            color: #ecf0f1;
+            padding: 5rem 4rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+        }
+
+        .footer-col h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: var(--header-bg);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .footer-col p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #bdc3c7;
+            max-width: 600px;
+        }
+
+        .contact-list {
+            list-style: none;
+        }
+
+        .contact-list li {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            color: #bdc3c7;
+        }
+
+        .contact-list strong {
+            color: white;
+            min-width: 100px;
+            display: inline-block;
+        }
+
+        .copyright {
+            grid-column: 1 / -1;
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #636e72;
+            color: #636e72;
+            font-size: 0.9rem;
+        }
+
+        /* --- Mobile Responsive --- */
+        @media (max-width: 768px) {
+            header {
+                padding: 1rem;
+                flex-direction: column;
+                height: auto;
+                gap: 15px;
+                position: relative;
+            }
+            main {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+                gap: 1rem;
+            }
+            .card {
+                font-size: 2rem;
+                min-height: 180px;
+            }
+            footer {
+                grid-template-columns: 1fr;
+                padding: 3rem 1.5rem;
+                gap: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">LIFELINK</div>
+        <nav class="nav-actions">
+            <a href="signup.html" class="nav-btn">Login</a>
+            <a href="signup.html" class="nav-btn">Signup</a>
+        </nav>
+    </header>
+
+    <main>
+        <a href="signup.html" class="card donation">
+            <span>Donation</span>
+        </a>
+
+        <a href="#" class="card hospital">
+            <span>Hospital</span>
+        </a>
+
+        <a href="signup.html" class="card medical">
+            <span>Medical<br>Shops</span>
+        </a>
+
+        <a href="signup.html" class="card events">
+            <span>Events</span>
+        </a>
+    </main>
+
+    <footer>
+        <div class="footer-col">
+            <h3>About LifeLink</h3>
+            <p>
+                <strong style="color: white;">Engineering Hope, Delivering Life.</strong><br><br>
+                LifeLink is a charitable initiative building the digital infrastructure to save lives at scale. We are an industrial-grade platform designed to bridge the gap between EMS, donors, and hospitals. By utilizing advanced automation to track and deploy medical assets—from blood donations to heavy machinery—we ensure that efficiency bridges the gap between crisis and care.
+            </p>
+        </div>
+
+        <div class="footer-col">
+            <h3>Contact Details</h3>
+            <ul class="contact-list">
+                <li><strong>Email:</strong> support@lifelink.com</li>
+                <li><strong>Phone:</strong> +91 99999 99999</li>
+                <li><strong>HQ:</strong> Tech Hub, Kolkata, West Bengal</li>
+                <li><strong>Support:</strong> 24/7 Rapid Response Team</li>
+            </ul>
+        </div>
+
+        <div class="copyright">
+            &copy; 2026 LifeLink Systems. All Rights Reserved.
+        </div>
+    </footer>
+
+</body>
+</html>

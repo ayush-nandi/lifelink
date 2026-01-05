@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>LifeLink Hospital Directory</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  
+  <link rel="stylesheet" href="hosp.css" />
+</head>
+<body>
+
+  <header>
+    <h1>LifeLink <span class="subtitle">Hospital Directory</span></h1>
+  </header>
+
+  <div class="container">
+    
+    <div class="sidebar">
+      
+      <div class="controls">
+        <label>Search Radius: <span id="radius-val">5</span> km</label>
+        <input type="range" id="radius-slider" min="1" max="10" value="5" step="1">
+        <div class="range-labels">
+          <span>1km</span><span>10km</span>
+        </div>
+      </div>
+
+      <div id="hospital-list">
+        <div class="empty-state">
+          <p>Waiting for location...</p>
+        </div>
+      </div>
+
+      <div id="hospital-details" style="display:none;">
+        <button id="back-btn">← Back to List</button>
+        <h2 id="detail-name">Hospital Name</h2>
+        
+        <div class="info-section">
+          <div class="info-item">
+            <span class="icon">📍</span>
+            <span id="detail-address">Loading...</span>
+          </div>
+          <div class="info-item">
+            <span class="icon">📞</span>
+            <span id="detail-phone">Not available</span>
+          </div>
+          <div class="info-item">
+            <span class="icon">🌐</span>
+            <a id="detail-website" href="#" target="_blank">Not available</a>
+          </div>
+          <div class="info-item">
+            <span class="icon">🕒</span>
+            <span id="detail-hours">Not available</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="map"></div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script type="module" src="hosp.js"></script>
+</body>
+</html>
