@@ -2,68 +2,186 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Partner Registration - MediFinder</title>
-    <link rel="stylesheet" href="shops.css">
+    <title>Partner Registration - LifeLink</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
+    <style> body { font-family: 'Inter', sans-serif; } </style>
 </head>
-<body>
-    <div class="container" style="max-width: 600px; margin-top: 30px;">
-        <h1>Register Your Shop</h1>
-        <p style="color:gray; font-size: 0.9em;">Join our verified network of pharmacies.</p>
+<body class="bg-gray-50 min-h-screen py-10">
 
-        <div class="shop-card" style="display:block;">
+    <div class="container mx-auto max-w-2xl bg-white rounded-3xl shadow-xl p-8">
+        <h1 class="text-3xl font-extrabold text-red-600 mb-2">Register Your Pharmacy</h1>
+        <p class="text-gray-500 mb-8">Join the LifeLink network. <span id="userEmailDisplay" class="font-bold text-black"></span></p>
+
+        <div id="regForm" class="space-y-4">
             
-            <label>Shop Name:</label>
-            <input type="text" id="name" placeholder="e.g. Apollo Pharmacy" style="width:100%; padding:10px; margin-bottom:10px;">
-
-            <label>Address (Area/Street):</label>
-            <input type="text" id="address" placeholder="e.g. Salt Lake Sector 5" style="width:100%; padding:10px; margin-bottom:10px;">
-
-            <label>Pincode:</label>
-            <input type="text" id="pincode" placeholder="e.g. 700091" style="width:100%; padding:10px; margin-bottom:10px;">
-
-            <label>Phone Number:</label>
-            <input type="text" id="phone" placeholder="e.g. 9876543210" style="width:100%; padding:10px; margin-bottom:10px;">
-
-            <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px; background: #e8f5e9; padding: 10px; border-radius: 5px;">
-                <input type="checkbox" id="isOpen247" style="width: 20px; height: 20px;">
-                <label for="isOpen247" style="margin: 0; font-weight: bold; color: #2e7d32;">This shop is open 24/7 (Emergency Service)</label>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Shop Name</label>
+                <input type="text" id="name" placeholder="e.g. Apollo Pharmacy" class="w-full p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-red-500 outline-none">
             </div>
 
-            <hr style="border: 0; border-top: 1px solid #ddd; margin: 20px 0;">
-            <h3 style="margin-bottom: 15px;">Official Verification Documents</h3>
+            <div class="bg-blue-50 p-5 rounded-2xl border border-blue-100">
+                <h3 class="font-bold text-blue-800 mb-3">📍 Shop Location</h3>
+                
+                <div class="grid grid-cols-2 gap-4 mb-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Address (Area)</label>
+                        <input type="text" id="address" placeholder="e.g. Salt Lake Sector 5" class="w-full p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Pincode</label>
+                        <input type="text" id="pincode" placeholder="e.g. 700091" class="w-full p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                </div>
 
-            <label>Drug License Number (DL No.):</label>
-            <input type="text" id="dlNum" placeholder="e.g. WB/KOL/1234/2023" style="width:100%; padding:10px; margin-bottom:10px; border: 1px solid #007bff;">
+                <button type="button" onclick="locateOnMap()" class="text-sm bg-blue-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-700 transition mb-3">
+                    Search Address on Map
+                </button>
 
-            <label>Owner's PAN Card Number:</label>
-            <input type="text" id="panNum" placeholder="e.g. ABCDE1234F" style="width:100%; padding:10px; margin-bottom:10px; border: 1px solid #007bff;">
+                <div id="map" class="h-64 w-full rounded-xl border-2 border-blue-200 z-0"></div>
+                <p class="text-xs text-blue-600 mt-2 text-center">👇 Drag the red marker to set your <b>exact</b> shop entrance.</p>
+            </div>
 
-            <label>GSTIN:</label>
-            <input type="text" id="gstin" placeholder="22AAAAA0000A1Z5" style="width:100%; padding:10px; margin-bottom:10px; border: 1px solid #007bff;">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                <input type="text" id="phone" placeholder="e.g. 9876543210" class="w-full p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-red-500 outline-none">
+            </div>
+
+            <div class="flex items-center gap-3 bg-green-50 p-4 rounded-xl border border-green-200">
+                <input type="checkbox" id="isOpen247" class="w-5 h-5 text-green-600 rounded focus:ring-green-500">
+                <label for="isOpen247" class="font-bold text-green-800 cursor-pointer">This shop is open 24/7 (Emergency Service)</label>
+            </div>
+
+            <hr class="border-gray-200 my-4">
+            <h3 class="text-lg font-bold text-gray-800">Official Verification</h3>
+            <p class="text-xs text-red-500 mb-4">* These details are private and for admin verification only.</p>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Drug License No.</label>
+                <input type="text" id="dlNum" placeholder="e.g. WB/KOL/1234/2023" class="w-full p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none">
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Owner PAN</label>
+                    <input type="text" id="panNum" placeholder="e.g. ABCDE1234F" class="w-full p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">GSTIN</label>
+                    <input type="text" id="gstin" placeholder="22AAAAA0000A1Z5" class="w-full p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+            </div>
             
-            <small style="display:block; margin-bottom:15px; color:red;">* Official documents are for internal verification only and will NOT be public.</small>
-            
-            <button onclick="registerShop()" style="width:100%; padding:12px; background:#007bff; color:white; border:none; font-size: 16px; cursor: pointer; border-radius: 5px;">
-                Submit for Verification
+            <button onclick="registerShop()" class="w-full bg-red-600 text-white py-4 rounded-xl font-bold hover:bg-red-700 transition shadow-lg mt-4">
+                Submit Registration
             </button>
-            <p id="msg" style="margin-top:10px; font-weight: bold;"></p>
+            <p id="msg" class="text-center font-bold mt-4"></p>
         </div>
-        <br>
-        <a href="shops.html">Back to Map</a>
     </div>
 
-<script type="module">
-        // 1. IMPORT DB FROM YOUR SHARED FILE
-        // Make sure the path is correct! If firebase.js is in a 'js' folder, use './js/firebase.js'
-        import { db } from './js/firebase.js'; 
-        
-        // 2. IMPORT FUNCTIONS WE NEED FROM FIREBASE WEB
-        import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-        // 3. DEFINE FUNCTION
-        // Since this is a module, we must attach the function to 'window' to make it clickable from HTML
+    <script type="module">
+        import { auth, db } from './js/firebase.js'; 
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+        import { collection, addDoc, query, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+
+        let currentUser = null;
+        let map, marker;
+        let selectedLat = null;
+        let selectedLon = null;
+
+        // --- MAP INITIALIZATION ---
+        function initMap() {
+            // Default View: India Center (or generic)
+            map = L.map('map').setView([22.5726, 88.3639], 10); // Default to Kolkata or generic
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+                subdomains: 'abcd',
+                maxZoom: 19
+            }).addTo(map);
+
+            // Create a draggable marker (Initially hidden or at default)
+            marker = L.marker([22.5726, 88.3639], { draggable: true }).addTo(map);
+            
+            // Listen for Drag End
+            marker.on('dragend', function(e) {
+                const position = marker.getLatLng();
+                selectedLat = position.lat;
+                selectedLon = position.lng;
+                console.log("New Position:", selectedLat, selectedLon);
+            });
+        }
+
+        // Initialize map immediately
+        initMap();
+
+        // --- LOCATE FUNCTION (Attached to Window) ---
+        window.locateOnMap = async function() {
+            const address = document.getElementById('address').value;
+            const pincode = document.getElementById('pincode').value;
+
+            if(!address || !pincode) return alert("Please enter Address and Pincode first.");
+
+            const fullAddress = `${address}, ${pincode}`;
+            
+            try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${fullAddress}&format=json&limit=1`);
+                const data = await response.json();
+
+                if (data.length > 0) {
+                    const lat = parseFloat(data[0].lat);
+                    const lon = parseFloat(data[0].lon);
+
+                    // Update Map & Marker
+                    map.setView([lat, lon], 16); // Zoom in
+                    marker.setLatLng([lat, lon]);
+                    
+                    // Update Variables
+                    selectedLat = lat;
+                    selectedLon = lon;
+                } else {
+                    alert("Address not found. Please try adjusting your search or drag the map manually.");
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Error finding location.");
+            }
+        }
+
+        // --- AUTH CHECK ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('userEmailDisplay').innerText = `(Logged in as: ${user.email})`;
+                checkIfAlreadyRegistered(user.uid);
+            } else {
+                window.location.href = "index.html";
+            }
+        });
+
+        async function checkIfAlreadyRegistered(uid) {
+            const q = query(collection(db, "shops"), where("ownerId", "==", uid));
+            const snapshot = await getDocs(q);
+            if (!snapshot.empty) {
+                document.getElementById('regForm').innerHTML = `
+                    <div class="text-center py-10">
+                        <h2 class="text-2xl font-bold text-green-600 mb-4">You already have a shop!</h2>
+                        <a href="manage-shop.html" class="inline-block bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition">
+                            Go to Manage Dashboard
+                        </a>
+                    </div>
+                `;
+            }
+        }
+
+        // --- REGISTER FUNCTION ---
         window.registerShop = async function() {
+            if (!currentUser) return alert("You must be logged in!");
+
             const name = document.getElementById('name').value;
             const address = document.getElementById('address').value;
             const pincode = document.getElementById('pincode').value;
@@ -74,28 +192,23 @@
             const isOpen247 = document.getElementById('isOpen247').checked;
             const msg = document.getElementById('msg');
 
-            if(!name || !address || !pincode || !phone || !dlNum || !panNum) {
+            // VALIDATION: Ensure location is set
+            if(!selectedLat || !selectedLon) {
+                return alert("Please click 'Search Address on Map' or drag the marker to set your location.");
+            }
+
+            if(!name || !address || !pincode || !phone || !dlNum) {
                 return alert("Please fill all required fields.");
             }
 
-            msg.innerText = "Verifying location...";
-            msg.style.color = "blue";
+            msg.innerText = "Processing...";
+            msg.className = "text-center font-bold mt-4 text-blue-600";
 
             try {
-                // Geocode (Same as before)
-                const fullAddress = `${address}, ${pincode}`;
-                const geoUrl = `https://nominatim.openstreetmap.org/search?q=${fullAddress}&format=json&limit=1`;
-                const response = await fetch(geoUrl);
-                const data = await response.json();
-
-                if (data.length === 0) {
-                    msg.innerText = "Location not found! Check address/pincode.";
-                    msg.style.color = "red";
-                    return;
-                }
-
-                // SAVE TO FIREBASE (NEW MODULAR SYNTAX)
+                // SAVE TO FIREBASE
                 await addDoc(collection(db, "shops"), {
+                    ownerId: currentUser.uid,
+                    ownerEmail: currentUser.email,
                     name: name,
                     address: address,
                     pincode: pincode,
@@ -104,23 +217,23 @@
                     dlNum: dlNum,
                     panNum: panNum,
                     isOpen247: isOpen247,
-                    lat: parseFloat(data[0].lat),
-                    lon: parseFloat(data[0].lon),
+                    lat: selectedLat, // Use the DRAGGED coordinates
+                    lon: selectedLon,
                     status: 'pending',
-                    createdAt: serverTimestamp() // Using the imported function
+                    createdAt: serverTimestamp()
                 });
 
-                msg.innerText = "Success! Application submitted for review.";
-                msg.style.color = "green";
+                msg.innerHTML = `Success! Redirecting to dashboard...`;
+                msg.className = "text-center font-bold mt-4 text-green-600";
                 
-                // Clear form inputs...
-                document.getElementById('name').value = "";
-                document.getElementById('dlNum').value = "";
+                setTimeout(() => {
+                    window.location.href = "manage-shop.html";
+                }, 2000);
 
             } catch (err) {
-                console.error("Firebase Error:", err);
+                console.error(err);
                 msg.innerText = "Error: " + err.message;
-                msg.style.color = "red";
+                msg.className = "text-center font-bold mt-4 text-red-600";
             }
         }
     </script>

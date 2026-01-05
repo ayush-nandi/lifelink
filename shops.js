@@ -139,8 +139,10 @@ function initMap(lat, lon) {
     
     map = L.map('map').setView([lat, lon], 13);
     
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap'
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 19
     }).addTo(map);
 
     // Initialize the group that will hold our markers
@@ -202,8 +204,8 @@ function renderPage() {
                 <span class="distance-badge">${shop.distance} km away</span>
             </div>
             <div>
-                <a href="http://googleusercontent.com/maps.google.com/?q=${shop.lat},${shop.lon}" 
-                   target="_blank" class="direction-btn">Directions</a>
+            <a href="https://www.google.com/maps/dir/?api=1&destination=${shop.lat},${shop.lon}" 
+               target="_blank" class="direction-btn">Get Directions</a>
             </div>
         `;
         listContainer.appendChild(card);

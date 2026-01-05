@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Shop - LifeLink</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <style> body { font-family: 'Inter', sans-serif; } </style>
+</head>
+<body class="bg-gray-100 min-h-screen py-10">
+
+    <div class="container mx-auto max-w-2xl">
+        <div class="flex justify-between items-center mb-8 px-4">
+            <h1 class="text-3xl font-extrabold text-gray-800">My Pharmacy</h1>
+            <a href="dashboard.html" class="text-gray-500 hover:text-black font-semibold">Back to Dashboard</a>
+        </div>
+
+        <div id="loading" class="text-center py-20">
+            <p class="text-xl text-gray-500 animate-pulse">Loading your shop details...</p>
+        </div>
+
+        <div id="noShop" class="hidden bg-white rounded-3xl shadow p-10 text-center">
+            <h2 class="text-2xl font-bold text-gray-700 mb-4">No Shop Found</h2>
+            <p class="text-gray-500 mb-6">You haven't registered a pharmacy with this account yet.</p>
+            <a href="register.html" class="inline-block bg-red-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-red-700">Register Now</a>
+        </div>
+
+        <div id="editForm" class="hidden bg-white rounded-3xl shadow-xl p-8 space-y-5">
+            
+            <div class="flex justify-between items-start">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">Edit Details</h2>
+                    <p class="text-sm text-gray-400">Update your public information</p>
+                </div>
+                <span id="statusBadge" class="px-4 py-1 rounded-full text-sm font-bold bg-gray-100 text-gray-600">Loading...</span>
+            </div>
+
+            <hr class="border-gray-100">
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Shop Name</label>
+                <input type="text" id="editName" class="w-full p-3 rounded-xl border border-gray-300 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+            </div>
+
+            <div class="bg-blue-50 p-5 rounded-2xl border border-blue-100">
+                <h3 class="font-bold text-blue-800 mb-3">📍 Update Location</h3>
+                <div class="grid grid-cols-2 gap-4 mb-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                        <input type="text" id="editAddress" class="w-full p-3 rounded-xl border border-gray-300 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Pincode</label>
+                        <input type="text" id="editPincode" class="w-full p-3 rounded-xl border border-gray-300 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                </div>
+
+                <button type="button" onclick="locateOnMap()" class="text-sm bg-blue-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-700 transition mb-3">
+                    Move Map to this Address
+                </button>
+
+                <div id="map" class="h-64 w-full rounded-xl border-2 border-blue-200 z-0"></div>
+                <p class="text-xs text-blue-600 mt-2 text-center">👇 Drag the marker to adjust the exact location.</p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                <input type="text" id="editPhone" class="w-full p-3 rounded-xl border border-gray-300 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+            </div>
+
+            <div class="flex items-center gap-3 bg-green-50 p-4 rounded-xl border border-green-200">
+                <input type="checkbox" id="editIsOpen247" class="w-5 h-5 text-green-600 rounded focus:ring-green-500">
+                <label for="editIsOpen247" class="font-bold text-green-800 cursor-pointer">Open 24/7</label>
+            </div>
+
+            <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 mt-4">
+                <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Locked Official Data</h4>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <p class="text-gray-500">Drug License</p>
+                        <p id="viewDl" class="font-mono font-bold text-gray-800">Loading...</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-500">GSTIN</p>
+                        <p id="viewGstin" class="font-mono font-bold text-gray-800">Loading...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-4 mt-6">
+                <button onclick="updateShop()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition">Save Changes</button>
+                <a href="dashboard.html" class="px-6 py-3 rounded-xl font-bold text-gray-500 hover:bg-gray-100">Cancel</a>
+            </div>
+            <p id="updateMsg" class="text-center font-bold"></p>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script type="module">
+        import { auth, db } from './js/firebase.js'; 
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+        import { collection, query, where, getDocs, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+
+        let myShopId = null;
+        let map, marker;
+        let selectedLat, selectedLon;
+
+        // --- AUTH & LOAD DATA ---
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = "index.html"; 
+                return;
+            }
+
+            const q = query(collection(db, "shops"), where("ownerId", "==", user.uid));
+            const snapshot = await getDocs(q);
+
+            document.getElementById('loading').classList.add('hidden');
+
+            if (snapshot.empty) {
+                document.getElementById('noShop').classList.remove('hidden');
+            } else {
+                const shopDoc = snapshot.docs[0];
+                const data = shopDoc.data();
+                myShopId = shopDoc.id; 
+
+                // Show Form
+                document.getElementById('editForm').classList.remove('hidden');
+                
+                // Fill Inputs
+                document.getElementById('editName').value = data.name;
+                document.getElementById('editAddress').value = data.address;
+                document.getElementById('editPincode').value = data.pincode;
+                document.getElementById('editPhone').value = data.phone;
+                document.getElementById('editIsOpen247').checked = data.isOpen247;
+                
+                document.getElementById('viewDl').innerText = data.dlNum || "N/A";
+                document.getElementById('viewGstin').innerText = data.gstin || "N/A";
+
+                const badge = document.getElementById('statusBadge');
+                badge.innerText = data.status.toUpperCase();
+                if(data.status === 'approved') badge.className = "px-4 py-1 rounded-full text-sm font-bold bg-green-100 text-green-700";
+                else if(data.status === 'pending') badge.className = "px-4 py-1 rounded-full text-sm font-bold bg-yellow-100 text-yellow-700";
+
+                // --- INITIALIZE MAP WITH SHOP DATA ---
+                selectedLat = data.lat;
+                selectedLon = data.lon;
+                initMap(data.lat, data.lon);
+            }
+        });
+
+        function initMap(lat, lon) {
+            // If lat/lon missing, default to Kolkata
+            if(!lat || !lon) { lat = 22.5726; lon = 88.3639; }
+
+            map = L.map('map').setView([lat, lon], 16);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+                subdomains: 'abcd',
+                maxZoom: 19
+            }).addTo(map);
+
+            marker = L.marker([lat, lon], { draggable: true }).addTo(map);
+            
+            // Listen to Drag
+            marker.on('dragend', function(e) {
+                const pos = marker.getLatLng();
+                selectedLat = pos.lat;
+                selectedLon = pos.lng;
+            });
+        }
+
+        // --- LOCATE FUNCTION ---
+        window.locateOnMap = async function() {
+            const address = document.getElementById('editAddress').value;
+            const pincode = document.getElementById('editPincode').value;
+
+            if(!address || !pincode) return alert("Please enter Address and Pincode");
+
+            try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${address}, ${pincode}&format=json&limit=1`);
+                const data = await response.json();
+
+                if (data.length > 0) {
+                    const lat = parseFloat(data[0].lat);
+                    const lon = parseFloat(data[0].lon);
+
+                    map.setView([lat, lon], 16);
+                    marker.setLatLng([lat, lon]);
+                    
+                    selectedLat = lat;
+                    selectedLon = lon;
+                } else {
+                    alert("Address not found.");
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        // --- UPDATE FUNCTION ---
+        window.updateShop = async function() {
+            if(!myShopId) return;
+
+            const name = document.getElementById('editName').value;
+            const address = document.getElementById('editAddress').value;
+            const pincode = document.getElementById('editPincode').value;
+            const phone = document.getElementById('editPhone').value;
+            const isOpen247 = document.getElementById('editIsOpen247').checked;
+            const msg = document.getElementById('updateMsg');
+
+            msg.innerText = "Updating...";
+            msg.className = "text-center font-bold text-blue-600 mt-2";
+
+            try {
+                const docRef = doc(db, "shops", myShopId);
+                
+                await updateDoc(docRef, {
+                    name, 
+                    address, 
+                    pincode, 
+                    phone, 
+                    isOpen247,
+                    lat: selectedLat, // Update with EXACT dragged location
+                    lon: selectedLon
+                });
+                
+                msg.innerText = "Changes Saved Successfully!";
+                msg.className = "text-center font-bold text-green-600 mt-2";
+
+            } catch (err) {
+                console.error(err);
+                msg.innerText = "Error: " + err.message;
+                msg.className = "text-center font-bold text-red-600 mt-2";
+            }
+        }
+    </script>
+</body>
+</html>
