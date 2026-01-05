@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal - LifeLink</title>
+    <link rel="stylesheet" href="admin-shop.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div id="fullPageLoader" class="loader-overlay">
+        <div class="spinner"></div>
+        <p id="loaderText">Verifying Admin Access...</p>
+    </div>
+
+    <div class="admin-wrapper">
+        <aside class="sidebar">
+            <div class="brand">
+                <i class="fas fa-heartbeat"></i> 
+                <h2>LifeLink <span class="badge-admin">ADMIN</span></h2>
+            </div>
+            
+            <div class="user-profile-mini">
+                <div class="avatar-circle"><i class="fas fa-user"></i></div>
+                <div class="user-text">
+                    <span id="adminNameDisplay">Administrator</span>
+                    <small id="adminEmailDisplay">...</small>
+                </div>
+            </div>
+
+            <nav class="side-nav">
+                <a href="#" class="active"><i class="fas fa-store"></i> Shop Approvals</a>
+                <a href="dashboard.html"><i class="fas fa-external-link-alt"></i> Main Site</a>
+                <div class="spacer"></div>
+                <button onclick="logoutAdmin()" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            
+            <header class="top-bar">
+                <div>
+                    <h1>Dashboard</h1>
+                    <p class="subtitle">Overview of pharmacy registrations</p>
+                </div>
+                <div class="date-display" id="dateDisplay"></div>
+            </header>
+
+            <div class="stats-grid">
+                <div class="card stat-card warning-card">
+                    <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                    <div class="stat-info">
+                        <h3>Pending</h3>
+                        <p id="countPending">0</p>
+                    </div>
+                </div>
+                <div class="card stat-card success-card">
+                    <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                    <div class="stat-info">
+                        <h3>Active</h3>
+                        <p id="countApproved">0</p>
+                    </div>
+                </div>
+                <div class="card stat-card info-card">
+                    <div class="stat-icon"><i class="fas fa-database"></i></div>
+                    <div class="stat-info">
+                        <h3>Total</h3>
+                        <p id="countTotal">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card table-card">
+                <div class="card-header">
+                    <h2>Pharmacy Applications</h2>
+                    <div class="filter-group">
+                        <button class="filter-btn active" onclick="filterShops('all')">All</button>
+                        <button class="filter-btn" onclick="filterShops('pending')">Pending</button>
+                        <button class="filter-btn" onclick="filterShops('approved')">Approved</button>
+                    </div>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Shop Name / ID</th>
+                                <th>Location</th>
+                                <th>Contact</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="shopsTableBody">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="detailsModal" class="modal hidden">
+        <div class="modal-backdrop" onclick="closeModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h2 id="modalTitle">Shop Details</h2>
+                    <span id="modalId" class="id-badge">ID: ...</span>
+                </div>
+                <button onclick="closeModal()" class="close-btn">×</button>
+            </div>
+            
+            <div class="modal-body" id="modalBody">
+                </div>
+
+            <div class="modal-footer">
+                <button id="btnReject" class="btn btn-danger">Reject</button>
+                <button id="btnApprove" class="btn btn-success">Approve</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="admin-shop.js"></script>
+    <script>
+        document.getElementById('dateDisplay').innerText = new Date().toLocaleDateString();
+    </script>
+</body>
+</html>
