@@ -4,39 +4,56 @@
     <meta charset="UTF-8">
     <title>Manage Shop - LifeLink</title>
     <link rel="stylesheet" href="partner.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
     <div class="container">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 30px;">
             <h1>My Pharmacy</h1>
-            <a href="dashboard.html" style="color: #607d8b; font-weight: bold;">← Back to Dashboard</a>
+            <a href="dashboard.html" style="color: #546e7a; font-weight: 600; font-size: 0.9rem; text-decoration: none;">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
         </div>
 
-        <div id="loading" class="text-center" style="padding: 50px;">
-            <p>Loading your shop details...</p>
+        <div id="loading" class="text-center" style="padding: 60px;">
+            <div style="margin-bottom:15px; font-size:2rem; color:#ccc;">
+                <i class="fas fa-circle-notch fa-spin"></i>
+            </div>
+            <p style="color:#888; font-style:italic;">Connecting to LifeLink Network...</p>
         </div>
 
         <div id="noShop" class="glass-card hidden text-center">
             <h2>No Shop Found</h2>
-            <p>You haven't registered a pharmacy yet.</p>
-            <br>
-            <a href="register.html" class="btn-primary" style="display:inline-block; width:auto; padding: 12px 30px;">Register Now</a>
+            <p style="color:#666; margin-bottom:20px;">You haven't registered a pharmacy yet.</p>
+            <a href="register.html" class="btn-primary" style="display:inline-block; width:auto; padding: 12px 40px;">Register Now</a>
         </div>
 
         <div id="editForm" class="glass-card hidden">
-            <div style="display:flex; justify-content:space-between; border-bottom:1px solid #eee; padding-bottom:10px; margin-bottom:20px;">
-                <h2>Edit Details</h2>
-                <span id="statusBadge" class="status-badge">Loading...</span>
+            
+            <div id="shopSelectorContainer" class="hidden" style="margin-bottom: 30px;">
+                <label style="color:#2E7D32; font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">Select Shop</label>
+                <select id="shopSelector" onchange="switchShop(this.value)">
+                    </select>
             </div>
 
-            <label>Shop Name</label>
-            <input type="text" id="editName">
-            <br><br>
+            <div class="edit-header">
+                <h2 style="margin:0;">Edit Details</h2>
+                <span id="statusBadge" class="status-pill">Loading...</span>
+            </div>
 
-            <div style="background: #f1f8f1; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-                <h3 style="margin-bottom: 15px;">📍 Update Location</h3>
+            <div style="margin-bottom: 25px;">
+                <label>Shop Name</label>
+                <input type="text" id="editName">
+            </div>
+
+            <div style="background: #f9fdf9; padding: 25px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #e8f5e9;">
+                <h3 style="margin-bottom: 20px; font-size:1.1rem; display:flex; align-items:center; gap:8px;">
+                    <i class="fas fa-map-marker-alt" style="color:#2E7D32"></i> Update Location
+                </h3>
+                
                 <div class="grid-2">
                     <div>
                         <label>Address</label>
@@ -47,93 +64,166 @@
                         <input type="text" id="editPincode">
                     </div>
                 </div>
+                
                 <br>
-                <button type="button" onclick="locateOnMap()" class="btn-secondary">Move Map to this Address</button>
-                <br><br>
+                <div class="grid-2">
+                    <button type="button" onclick="locateOnMap()" class="btn-secondary">
+                        🔍 Search Address
+                    </button>
+                    <button type="button" onclick="useCurrentLocation()" id="geoBtn" class="btn-secondary" style="background: #e8f5e9; border-color: #2E7D32;">
+                        <i class="fas fa-location-arrow"></i> Use Current Location
+                    </button>
+                </div>
+                
+                <br>
                 <div id="map"></div>
-                <p class="text-center" style="color: #2E7D32; font-size: 0.9em; margin-top: 10px;">👇 Drag marker to adjust</p>
+                <p class="text-center" style="color: #2E7D32; font-size: 0.85em; margin-top: 10px; font-weight:600;">
+                    👇 Drag the marker to adjust the exact location
+                </p>
             </div>
 
-            <label>Phone Number</label>
-            <input type="text" id="editPhone">
-            <br><br>
-
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <input type="checkbox" id="editIsOpen247" style="width: 20px; height: 20px; accent-color: #2E7D32;">
-                <label for="editIsOpen247" style="margin:0; cursor:pointer;">Open 24/7</label>
+            <div style="margin-bottom: 25px;">
+                <label>Phone Number</label>
+                <input type="text" id="editPhone">
             </div>
-            <br>
 
-            <div style="background: #f9f9f9; padding: 15px; border-radius: 12px; border: 1px solid #eee;">
-                <h4 style="margin:0 0 10px 0; color:#999; text-transform:uppercase; font-size:0.8em;">Locked Official Data</h4>
+            <div style="margin-bottom: 25px;">
+                <div style="display: flex; align-items: center; gap: 12px; padding: 15px; border: 1px solid #eee; border-radius: 10px; cursor: pointer;" onclick="document.getElementById('editIsOpen247').click()">
+                    <input type="checkbox" id="editIsOpen247" style="width: 20px; height: 20px; accent-color: #2E7D32; cursor:pointer;">
+                    <label for="editIsOpen247" style="margin:0; cursor:pointer; font-weight:600; color:#333;">Open 24/7 (Emergency Service)</label>
+                </div>
+            </div>
+
+            <div style="background: #f5f5f5; padding: 20px; border-radius: 12px; border: 1px solid #e0e0e0;">
+                <h4 style="margin:0 0 15px 0; color:#888; text-transform:uppercase; font-size:0.75em; letter-spacing:1px; font-weight:800;">Locked Official Data</h4>
                 <div class="grid-2">
                     <div>
-                        <p style="margin:0; font-size:0.8em; color:#666;">Drug License</p>
-                        <p id="viewDl" style="font-weight:bold; margin-top:5px;">Loading...</p>
+                        <p style="margin:0; font-size:0.85em; color:#666;">Drug License</p>
+                        <p id="viewDl" style="font-weight:700; margin-top:4px; font-family:monospace; font-size:1rem; color:#333;">Loading...</p>
                     </div>
                     <div>
-                        <p style="margin:0; font-size:0.8em; color:#666;">GSTIN</p>
-                        <p id="viewGstin" style="font-weight:bold; margin-top:5px;">Loading...</p>
+                        <p style="margin:0; font-size:0.85em; color:#666;">GSTIN</p>
+                        <p id="viewGstin" style="font-weight:700; margin-top:4px; font-family:monospace; font-size:1rem; color:#333;">Loading...</p>
                     </div>
                 </div>
             </div>
-            <br>
 
-            <div class="grid-2">
-                <button onclick="updateShop()" class="btn-primary">Save Changes</button>
-                <a href="dashboard.html" class="btn-secondary" style="text-align:center; text-decoration:none; display:flex; align-items:center; justify-content:center;">Cancel</a>
+            <div class="action-grid">
+                <button onclick="updateShop()" class="btn-primary">
+                    <i class="fas fa-save" style="margin-right:8px;"></i> Save Changes
+                </button>
+                <a href="dashboard.html" class="btn-secondary">
+                    Cancel
+                </a>
             </div>
-            <p id="updateMsg" class="text-center" style="font-weight:bold; margin-top:15px;"></p>
+            
+            <p id="updateMsg" class="text-center" style="font-weight:bold; margin-top:20px; min-height:20px;"></p>
+
+            <div style="margin-top: 40px; padding-top: 30px; border-top: 2px dashed #eee; text-align: center;">
+                <p style="color: #666; margin-bottom: 15px; font-size: 0.95rem;">Want to register another shop?</p>
+                <a href="register.html" style="color: #2E7D32; font-weight: 700; font-size: 0.9rem; text-decoration: none; border: 1px solid #2E7D32; padding: 10px 25px; border-radius: 50px; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; background: white;" onmouseover="this.style.background='#e8f5e9'" onmouseout="this.style.background='white'">
+                    <i class="fas fa-plus"></i> Register New Pharmacy
+                </a>
+            </div>
+
         </div>
     </div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
     <script type="module">
         import { auth, db } from './js/firebase.js'; 
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
         import { collection, query, where, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
         let myShopId = null;
-        let map, marker, selectedLat, selectedLon;
+        let map = null;
+        let marker = null;
+        let selectedLat, selectedLon;
+        let allShopsData = []; 
 
         onAuthStateChanged(auth, async (user) => {
             if (!user) { window.location.href = "index.html"; return; }
 
             const q = query(collection(db, "shops"), where("ownerId", "==", user.uid));
             const snapshot = await getDocs(q);
+            
             document.getElementById('loading').classList.add('hidden');
 
             if (snapshot.empty) {
                 document.getElementById('noShop').classList.remove('hidden');
             } else {
-                const docSnap = snapshot.docs[0];
-                const data = docSnap.data();
-                myShopId = docSnap.id;
+                allShopsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                if (allShopsData.length > 1) {
+                    const selector = document.getElementById('shopSelector');
+                    selector.innerHTML = "";
+                    allShopsData.forEach((shop, index) => {
+                        const opt = document.createElement('option');
+                        opt.value = index;
+                        opt.innerText = `${shop.name} (${shop.address})`;
+                        selector.appendChild(opt);
+                    });
+                    document.getElementById('shopSelectorContainer').classList.remove('hidden');
+                }
 
                 document.getElementById('editForm').classList.remove('hidden');
-                document.getElementById('editName').value = data.name;
-                document.getElementById('editAddress').value = data.address;
-                document.getElementById('editPincode').value = data.pincode;
-                document.getElementById('editPhone').value = data.phone;
-                document.getElementById('editIsOpen247').checked = data.isOpen247;
-                document.getElementById('viewDl').innerText = data.dlNum || "N/A";
-                document.getElementById('viewGstin').innerText = data.gstin || "N/A";
-
-                const badge = document.getElementById('statusBadge');
-                badge.innerText = data.status;
-                badge.className = `status-badge status-${data.status}`;
-
-                selectedLat = data.lat; selectedLon = data.lon;
-                initMap(data.lat, data.lon);
+                loadShopIntoForm(0);
             }
         });
+
+        window.switchShop = function(index) {
+            loadShopIntoForm(index);
+        }
+
+        function loadShopIntoForm(index) {
+            const data = allShopsData[index];
+            myShopId = data.id;
+
+            document.getElementById('editName').value = data.name;
+            document.getElementById('editAddress').value = data.address;
+            document.getElementById('editPincode').value = data.pincode;
+            document.getElementById('editPhone').value = data.phone;
+            document.getElementById('editIsOpen247').checked = data.isOpen247;
+            document.getElementById('viewDl').innerText = data.dlNum || "N/A";
+            document.getElementById('viewGstin').innerText = data.gstin || "N/A";
+
+            const badge = document.getElementById('statusBadge');
+            badge.innerText = data.status.toUpperCase();
+            badge.className = 'status-pill'; 
+            if(data.status === 'approved') badge.classList.add('status-approved');
+            else badge.classList.add('status-pending');
+
+            selectedLat = data.lat; 
+            selectedLon = data.lon;
+            
+            if (!map) {
+                initMap(data.lat, data.lon);
+            } else {
+                updateMapPosition(data.lat, data.lon);
+                setTimeout(() => { map.invalidateSize(); }, 100);
+            }
+        }
 
         function initMap(lat, lon) {
             if(!lat || !lon) { lat=22.5726; lon=88.3639; }
             map = L.map('map').setView([lat, lon], 16);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { attribution: '© OpenStreetMap & CARTO', maxZoom: 19 }).addTo(map);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { 
+                attribution: '© OpenStreetMap & CARTO', 
+                maxZoom: 19 
+            }).addTo(map);
             marker = L.marker([lat, lon], { draggable: true }).addTo(map);
-            marker.on('dragend', function(e) { const pos = marker.getLatLng(); selectedLat = pos.lat; selectedLon = pos.lng; });
+            marker.on('dragend', function(e) { 
+                const pos = marker.getLatLng(); 
+                selectedLat = pos.lat; 
+                selectedLon = pos.lng; 
+            });
+        }
+
+        function updateMapPosition(lat, lon) {
+            if(map && marker) {
+                map.setView([lat, lon], 16);
+                marker.setLatLng([lat, lon]);
+            }
         }
 
         window.locateOnMap = async function() {
@@ -143,12 +233,31 @@
             try {
                 const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${address}, ${pincode}&format=json&limit=1`);
                 const data = await res.json();
-                if (data.length > 0) {
-                    const lat = parseFloat(data[0].lat); const lon = parseFloat(data[0].lon);
-                    map.setView([lat, lon], 16); marker.setLatLng([lat, lon]);
-                    selectedLat = lat; selectedLon = lon;
-                } else { alert("Address not found."); }
+                if (data.length > 0) updateMapPosition(parseFloat(data[0].lat), parseFloat(data[0].lon));
+                else alert("Address not found.");
             } catch (e) { console.error(e); }
+        }
+
+        window.useCurrentLocation = function() {
+            if (!navigator.geolocation) return alert("Geolocation not supported.");
+            const btn = document.getElementById('geoBtn');
+            const txt = btn.innerHTML;
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Locating...`; btn.disabled = true;
+
+            navigator.geolocation.getCurrentPosition(async (pos) => {
+                const { latitude: lat, longitude: lon } = pos.coords;
+                updateMapPosition(lat, lon);
+                try {
+                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+                    const data = await res.json();
+                    if(data && data.address) {
+                        if(data.address.postcode) document.getElementById('editPincode').value = data.address.postcode;
+                        const parts = [data.address.road, data.address.suburb, data.address.city].filter(Boolean);
+                        document.getElementById('editAddress').value = parts.join(", ");
+                    }
+                } catch(e){}
+                btn.innerHTML = txt; btn.disabled = false;
+            }, () => { alert("Location denied."); btn.innerHTML = txt; btn.disabled = false; });
         }
 
         window.updateShop = async function() {
@@ -166,6 +275,7 @@
                     lat: selectedLat, lon: selectedLon
                 });
                 msg.innerText = "Saved Successfully!"; msg.style.color = "green";
+                setTimeout(() => msg.innerText = "", 3000);
             } catch (e) {
                 console.error(e); msg.innerText = "Error: " + e.message; msg.style.color = "red";
             }

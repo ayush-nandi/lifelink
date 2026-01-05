@@ -5,20 +5,24 @@
     <title>Partner Registration - LifeLink</title>
     <link rel="stylesheet" href="partner.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
     <div class="container">
         <div class="glass-card">
-            <h1 class="text-center">Register Your Pharmacy</h1>
-            <p class="text-center" style="color:#666; margin-bottom: 30px;">
-                Join the LifeLink network. <br>
+            <h1 class="text-center">Register a Pharmacy</h1>
+            <p class="text-center" style="color:#666; margin-bottom: 20px;">
+                Add a new shop to your portfolio. <br>
                 <span id="userEmailDisplay" style="color:black; font-weight:bold;"></span>
             </p>
 
+            <div id="existingShopsMsg" class="hidden text-center" style="background:#e3f2fd; color:#0d47a1; padding:10px; border-radius:8px; margin-bottom:20px; border:1px solid #bbdefb;">
+                </div>
+
             <div id="regForm">
                 <label>Shop Name</label>
-                <input type="text" id="name" placeholder="e.g. Apollo Pharmacy">
+                <input type="text" id="name" placeholder="e.g. Apollo Pharmacy (Branch 2)">
                 <br><br>
 
                 <div style="background: #f1f8f1; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
@@ -34,13 +38,16 @@
                         </div>
                     </div>
                     <br>
-                    <button type="button" onclick="locateOnMap()" class="btn-secondary">
-                        🔍 Search Address on Map
-                    </button>
-                    <br><br>
+                    <div class="grid-2">
+                        <button type="button" onclick="locateOnMap()" class="btn-secondary">🔍 Search Address</button>
+                        <button type="button" onclick="useCurrentLocation()" id="geoBtn" class="btn-secondary" style="background: #e8f5e9; border-color: #2E7D32;">
+                            <i class="fas fa-location-arrow"></i> Use Current Location
+                        </button>
+                    </div>
+                    <br>
                     <div id="map"></div>
                     <p class="text-center" style="color: #2E7D32; font-size: 0.9em; margin-top: 10px;">
-                        👇 Drag the marker to set exact location
+                        👇 Drag the marker to set exact entrance location
                     </p>
                 </div>
 
@@ -55,7 +62,7 @@
                 <br>
 
                 <h3 style="border-bottom: 1px solid #eee; padding-bottom: 10px;">Official Verification</h3>
-                <p style="font-size: 0.8em; color: red;">* Private data for admin use only.</p>
+                <p style="font-size: 0.8em; color: red;">* Licenses must be unique. Duplicate registrations will be rejected.</p>
 
                 <label>Drug License No.</label>
                 <input type="text" id="dlNum" placeholder="e.g. WB/KOL/1234/2023">
@@ -88,7 +95,6 @@
         let currentUser = null;
         let map, marker, selectedLat, selectedLon;
 
-        // Map Init
         function initMap() {
             map = L.map('map').setView([22.5726, 88.3639], 10);
             L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
@@ -102,48 +108,69 @@
         }
         initMap();
 
-        // Locate Logic
+        // --- MAP FUNCTIONS ---
+        function updateMapPosition(lat, lon) {
+            map.setView([lat, lon], 16);
+            marker.setLatLng([lat, lon]);
+            selectedLat = lat; selectedLon = lon;
+        }
+
         window.locateOnMap = async function() {
             const address = document.getElementById('address').value;
             const pincode = document.getElementById('pincode').value;
             if(!address || !pincode) return alert("Enter Address & Pincode");
-            
             try {
                 const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${address}, ${pincode}&format=json&limit=1`);
                 const data = await res.json();
-                if (data.length > 0) {
-                    const lat = parseFloat(data[0].lat);
-                    const lon = parseFloat(data[0].lon);
-                    map.setView([lat, lon], 16);
-                    marker.setLatLng([lat, lon]);
-                    selectedLat = lat; selectedLon = lon;
-                } else { alert("Address not found."); }
+                if (data.length > 0) updateMapPosition(parseFloat(data[0].lat), parseFloat(data[0].lon));
+                else alert("Address not found.");
             } catch (e) { console.error(e); }
         }
 
-        // Auth Logic
+        window.useCurrentLocation = function() {
+            if (!navigator.geolocation) return alert("Geolocation not supported.");
+            const btn = document.getElementById('geoBtn');
+            const txt = btn.innerHTML;
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Locating...`; btn.disabled = true;
+
+            navigator.geolocation.getCurrentPosition(async (pos) => {
+                const { latitude: lat, longitude: lon } = pos.coords;
+                updateMapPosition(lat, lon);
+                try {
+                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+                    const data = await res.json();
+                    if(data && data.address) {
+                        if(data.address.postcode) document.getElementById('pincode').value = data.address.postcode;
+                        const parts = [data.address.road, data.address.suburb, data.address.city].filter(Boolean);
+                        document.getElementById('address').value = parts.join(", ");
+                    }
+                } catch(e){}
+                btn.innerHTML = txt; btn.disabled = false;
+            }, () => { alert("Location denied."); btn.innerHTML = txt; btn.disabled = false; });
+        }
+
+        // --- AUTH & CHECK SHOPS ---
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
                 document.getElementById('userEmailDisplay').innerText = `Logged in as: ${user.email}`;
-                checkIfAlreadyRegistered(user.uid);
+                checkExistingShops(user.uid);
             } else { window.location.href = "index.html"; }
         });
 
-        async function checkIfAlreadyRegistered(uid) {
+        // 1. CHANGED: Just notify user, don't block them
+        async function checkExistingShops(uid) {
             const q = query(collection(db, "shops"), where("ownerId", "==", uid));
             const snapshot = await getDocs(q);
             if (!snapshot.empty) {
-                document.getElementById('regForm').innerHTML = `
-                    <div class="text-center">
-                        <h2 style="color: #2E7D32;">✅ You have a shop!</h2>
-                        <br>
-                        <a href="manage-shop.html" class="btn-primary" style="display:inline-block; width:auto; padding: 15px 30px;">Go to Dashboard</a>
-                    </div>`;
+                const count = snapshot.size;
+                const msgDiv = document.getElementById('existingShopsMsg');
+                msgDiv.innerHTML = `ℹ️ <b>You currently manage ${count} shop(s).</b> <br> <a href="manage-shop.html">Click here to manage them</a> or register a new one below.`;
+                msgDiv.classList.remove('hidden');
             }
         }
 
-        // Register Logic
+        // --- REGISTER LOGIC ---
         window.registerShop = async function() {
             if (!currentUser) return alert("Login required!");
             
@@ -151,19 +178,41 @@
             const address = document.getElementById('address').value;
             const pincode = document.getElementById('pincode').value;
             const phone = document.getElementById('phone').value;
-            const dlNum = document.getElementById('dlNum').value;
+            const dlNum = document.getElementById('dlNum').value.trim();
             const panNum = document.getElementById('panNum').value;
-            const gstin = document.getElementById('gstin').value;
+            const gstin = document.getElementById('gstin').value.trim();
             const isOpen247 = document.getElementById('isOpen247').checked;
             const msg = document.getElementById('msg');
 
             if(!selectedLat || !selectedLon) return alert("Please set location on map.");
-            if(!name || !address || !pincode || !phone || !dlNum) return alert("Fill all fields.");
+            if(!name || !address || !pincode || !phone || !dlNum || !gstin) return alert("Fill all fields including GSTIN & Drug License.");
 
-            msg.innerText = "Processing...";
+            msg.innerText = "Verifying Licenses...";
             msg.style.color = "blue";
 
             try {
+                // 2. NEW: UNIQUE CHECKS
+                // Check GSTIN
+                const qGstin = query(collection(db, "shops"), where("gstin", "==", gstin));
+                const snapGstin = await getDocs(qGstin);
+                if (!snapGstin.empty) {
+                    msg.innerText = "Error: This GSTIN is already registered!";
+                    msg.style.color = "red";
+                    return;
+                }
+
+                // Check Drug License
+                const qDl = query(collection(db, "shops"), where("dlNum", "==", dlNum));
+                const snapDl = await getDocs(qDl);
+                if (!snapDl.empty) {
+                    msg.innerText = "Error: This Drug License is already registered!";
+                    msg.style.color = "red";
+                    return;
+                }
+
+                msg.innerText = "Submitting Data...";
+
+                // Create Shop
                 await addDoc(collection(db, "shops"), {
                     ownerId: currentUser.uid,
                     ownerEmail: currentUser.email,
@@ -171,9 +220,11 @@
                     lat: selectedLat, lon: selectedLon,
                     status: 'pending', createdAt: serverTimestamp()
                 });
+
                 msg.innerText = "Success! Redirecting...";
                 msg.style.color = "green";
                 setTimeout(() => window.location.href = "manage-shop.html", 2000);
+
             } catch (e) {
                 console.error(e);
                 msg.innerText = "Error: " + e.message;
