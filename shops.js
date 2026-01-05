@@ -1,27 +1,18 @@
-// --- 1. FIREBASE CONFIGURATION ---
-// PASTE YOUR REAL KEYS HERE
-const firebaseConfig = {
-    apiKey: "AIzaSyAr3oQxAOXOtFeQIdm83dMaLj2n2ibsHYk",
-    authDomain: "lifelink-a61c1.firebaseapp.com",
-    projectId: "lifelink-a61c1",
-    storageBucket: "lifelink-a61c1.firebasestorage.app",
-    messagingSenderId: "473418229264",
-    appId: "1:473418229264:web:628e0e8286d2b20cf40c95"
-};
-
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
-const db = firebase.firestore();
+// --- 1. IMPORTS ---
+// Ensure this path matches where your firebase.js is located
+import { db } from './js/firebase.js'; 
+import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
 // --- 2. GLOBAL VARIABLES ---
 let map;
+let featureGroup; // We make this global so we can add markers to it later
 let allShops = [];
 let currentPage = 1;
 const itemsPerPage = 10;
 
+// Helper: Calculate Distance
 function getDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371; 
+    const R = 6371; // Earth radius in km
     const dLat = (lat2 - lat1) * (Math.PI / 180);
     const dLon = (lon2 - lon1) * (Math.PI / 180);
     const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
@@ -31,13 +22,16 @@ function getDistance(lat1, lon1, lat2, lon2) {
     return R * c;
 }
 
-// --- 3. SEARCH FUNCTIONS ---
+// --- 3. SEARCH FUNCTIONS (Attached to Window) ---
 
-async function findShopsByText() {
+window.findShopsByText = async function() {
     const location = document.getElementById('locationInput').value;
     if (!location) return alert("Please enter a location");
+    
     const searchBtn = document.querySelector('.search-box button');
+    const originalText = searchBtn.innerText;
     searchBtn.innerText = "Searching...";
+    searchBtn.disabled = true;
 
     try {
         const geoUrl = `https://nominatim.openstreetmap.org/search?q=${location}&format=json&limit=1`;
@@ -46,7 +40,6 @@ async function findShopsByText() {
 
         if (geoData.length === 0) {
             alert("Location not found.");
-            searchBtn.innerText = "Search";
             return;
         }
 
@@ -59,62 +52,76 @@ async function findShopsByText() {
         console.error("Error:", error);
         alert("Could not find location.");
     } finally {
-        searchBtn.innerText = "Search";
+        searchBtn.innerText = originalText;
+        searchBtn.disabled = false;
     }
-}
+};
 
-function findShopsByGeo() {
-    if (!navigator.geolocation) return alert("Geolocation not supported");
+window.findShopsByGeo = function() {
+    if (!navigator.geolocation) return alert("Geolocation not supported by your browser");
+    
     const btn = document.getElementById('geoBtn');
-    const originalText = btn.innerHTML; 
-    btn.innerText = "Locating...";
+    const originalHtml = btn.innerHTML; 
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Locating...';
+    btn.disabled = true;
 
     navigator.geolocation.getCurrentPosition(
         (position) => {
-            btn.innerHTML = originalText;
+            btn.innerHTML = originalHtml;
+            btn.disabled = false;
             fetchShopsFromFirebase(position.coords.latitude, position.coords.longitude);
         },
         (error) => {
             console.error("Geo Error:", error);
-            btn.innerHTML = originalText;
-            alert("Location access denied.");
+            btn.innerHTML = originalHtml;
+            btn.disabled = false;
+            alert("Location access denied. Please enable GPS.");
         }
     );
-}
+};
 
 // --- 4. FIREBASE FETCH FUNCTION ---
 async function fetchShopsFromFirebase(userLat, userLon) {
+    // FIX 1: Clear old data immediately so map doesn't show ghost markers
+    allShops = []; 
     document.getElementById('resultSection').style.display = 'block';
+    
+    // FIX 2: Initialize map with ONLY user location first
     initMap(userLat, userLon);
 
     try {
-        const snapshot = await db.collection('shops')
-                                 .where('status', '==', 'approved')
-                                 .get();
+        const q = query(collection(db, "shops"), where("status", "==", "approved"));
+        const snapshot = await getDocs(q);
 
         if (snapshot.empty) {
             console.log("No approved shops found.");
             document.getElementById('shopCount').innerText = "0";
+            document.getElementById('shopList').innerHTML = "<p>No shops found nearby.</p>";
             return;
         }
 
         const tempShops = [];
         snapshot.forEach(doc => {
             const data = doc.data();
-            const dist = getDistance(userLat, userLon, data.lat, data.lon);
-            
-            // 50km Radius Filter
-            if (dist <= 50) { 
-                tempShops.push({
-                    id: doc.id,
-                    ...data, 
-                    distance: parseFloat(dist.toFixed(2))
-                });
+            if (data.lat && data.lon) {
+                const dist = getDistance(userLat, userLon, data.lat, data.lon);
+                // 50km Radius Filter
+                if (dist <= 50) { 
+                    tempShops.push({
+                        id: doc.id,
+                        ...data, 
+                        distance: parseFloat(dist.toFixed(2))
+                    });
+                }
             }
         });
 
         allShops = tempShops.sort((a, b) => a.distance - b.distance);
         document.getElementById('shopCount').innerText = allShops.length;
+        
+        // FIX 3: Plot new markers NOW, after we have the new data
+        plotShopMarkers();
+        
         renderPage();
 
     } catch (err) {
@@ -124,28 +131,44 @@ async function fetchShopsFromFirebase(userLat, userLon) {
 }
 
 // --- 5. MAP & RENDER FUNCTIONS ---
+
 function initMap(lat, lon) {
-    if (map) map.remove(); 
-    map = L.map('map'); // Init without view
+    if (map) {
+        map.remove(); // Reset map if it already exists
+    }
+    
+    map = L.map('map').setView([lat, lon], 13);
     
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap'
     }).addTo(map);
 
-    const featureGroup = L.featureGroup().addTo(map);
+    // Initialize the group that will hold our markers
+    featureGroup = L.featureGroup().addTo(map);
 
-    // User Marker
-    const userMarker = L.marker([lat, lon]).bindPopup("<b>You are here</b>");
-    userMarker.addTo(featureGroup);
+    // Add ONLY the User Marker (Blue)
+    L.marker([lat, lon]).addTo(featureGroup)
+        .bindPopup("<b>You are here</b>")
+        .openPopup();
+}
 
-    // Shop Markers
+// NEW FUNCTION: Handles plotting shops separately
+function plotShopMarkers() {
     allShops.forEach(shop => {
-         const marker = L.circleMarker([shop.lat, shop.lon], { color: 'red', radius: 8 })
-            .bindPopup(`<b>${shop.name}</b>`);
-        marker.addTo(featureGroup);
+         L.circleMarker([shop.lat, shop.lon], { 
+             color: 'red', 
+             radius: 8, 
+             fillColor: '#f03', 
+             fillOpacity: 0.5 
+         })
+         .addTo(featureGroup)
+         .bindPopup(`<b>${shop.name}</b><br>${shop.distance} km`);
     });
 
-    map.fitBounds(featureGroup.getBounds(), { padding: [50, 50] });
+    // Auto-zoom to show all shops + user
+    if (allShops.length > 0) {
+        map.fitBounds(featureGroup.getBounds(), { padding: [50, 50] });
+    }
 }
 
 function renderPage() {
@@ -156,24 +179,26 @@ function renderPage() {
     const end = start + itemsPerPage;
     const pageShops = allShops.slice(start, end);
 
+    if (pageShops.length === 0 && allShops.length > 0) {
+        // Handle edge case if pagination goes out of bounds
+        currentPage = 1;
+        renderPage();
+        return;
+    }
+
     pageShops.forEach(shop => {
         const card = document.createElement('div');
         card.className = 'shop-card';
         
-        // CHECK: Is the shop 24/7?
         const badge247 = shop.isOpen247 
-            ? `<span style="background: #e8f5e9; color: #2e7d32; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: bold; border: 1px solid #2e7d32; margin-left: 10px;">🟢 Open 24/7</span>` 
+            ? `<span style="background: #e8f5e9; color: #2e7d32; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: bold; border: 1px solid #2e7d32; margin-left: 10px;">🟢 24/7</span>` 
             : ``;
 
-        // Note: We deliberately DO NOT show DL Number or PAN here for privacy
         card.innerHTML = `
             <div class="shop-info">
-                <h3 style="display:flex; align-items:center;">
-                    ${shop.name} 
-                    ${badge247}
-                </h3>
-                <p>Address: ${shop.address} - ${shop.pincode}</p>
-                <p>Phone: ${shop.phone || "N/A"}</p>
+                <h3>${shop.name} ${badge247}</h3>
+                <p><i class="fas fa-map-marker-alt"></i> ${shop.address} - ${shop.pincode}</p>
+                <p><i class="fas fa-phone"></i> ${shop.phone || "N/A"}</p>
                 <span class="distance-badge">${shop.distance} km away</span>
             </div>
             <div>
@@ -189,7 +214,7 @@ function renderPage() {
     document.getElementById('pageIndicator').innerText = `Page ${currentPage}`;
 }
 
-function changePage(d) {
+window.changePage = function(d) {
     currentPage += d;
     renderPage();
-}
+};

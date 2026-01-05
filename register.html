@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <title>Partner Registration - MediFinder</title>
     <link rel="stylesheet" href="shops.css">
-    
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
 </head>
 <body>
     <div class="container" style="max-width: 600px; margin-top: 30px;">
@@ -55,24 +53,17 @@
         <a href="shops.html">Back to Map</a>
     </div>
 
-    <script>
-        // --- 1. FIREBASE CONFIG ---
-        // PASTE YOUR REAL KEYS HERE
-        const firebaseConfig = {
-            apiKey: "AIzaSyAr3oQxAOXOtFeQIdm83dMaLj2n2ibsHYk",
-            authDomain: "lifelink-a61c1.firebaseapp.com",
-            projectId: "lifelink-a61c1",
-            storageBucket: "lifelink-a61c1.appspot.com",
-            messagingSenderId: "473418229264",
-            appId: "1:473418229264:web:628e0e8286d2b20cf40c95"
-        };
+<script type="module">
+        // 1. IMPORT DB FROM YOUR SHARED FILE
+        // Make sure the path is correct! If firebase.js is in a 'js' folder, use './js/firebase.js'
+        import { db } from './js/firebase.js'; 
         
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+        // 2. IMPORT FUNCTIONS WE NEED FROM FIREBASE WEB
+        import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
-        // --- 2. REGISTRATION LOGIC ---
-        async function registerShop() {
-            // Get Values
+        // 3. DEFINE FUNCTION
+        // Since this is a module, we must attach the function to 'window' to make it clickable from HTML
+        window.registerShop = async function() {
             const name = document.getElementById('name').value;
             const address = document.getElementById('address').value;
             const pincode = document.getElementById('pincode').value;
@@ -80,20 +71,18 @@
             const dlNum = document.getElementById('dlNum').value;
             const panNum = document.getElementById('panNum').value;
             const gstin = document.getElementById('gstin').value;
-            const isOpen247 = document.getElementById('isOpen247').checked; // Get Checkbox (true/false)
-            
+            const isOpen247 = document.getElementById('isOpen247').checked;
             const msg = document.getElementById('msg');
 
-            // Validation
             if(!name || !address || !pincode || !phone || !dlNum || !panNum) {
-                return alert("Please fill all required fields (Name, Address, Phone, DL, PAN).");
+                return alert("Please fill all required fields.");
             }
 
             msg.innerText = "Verifying location...";
             msg.style.color = "blue";
 
             try {
-                // A. Geocode
+                // Geocode (Same as before)
                 const fullAddress = `${address}, ${pincode}`;
                 const geoUrl = `https://nominatim.openstreetmap.org/search?q=${fullAddress}&format=json&limit=1`;
                 const response = await fetch(geoUrl);
@@ -105,35 +94,32 @@
                     return;
                 }
 
-                // B. Save to Firebase
-                await db.collection('shops').add({
+                // SAVE TO FIREBASE (NEW MODULAR SYNTAX)
+                await addDoc(collection(db, "shops"), {
                     name: name,
                     address: address,
                     pincode: pincode,
                     phone: phone,
-                    // Private Data
-                    gstin: gstin, 
-                    dlNum: dlNum, 
+                    gstin: gstin,
+                    dlNum: dlNum,
                     panNum: panNum,
-                    // Public Data
-                    isOpen247: isOpen247, // Checkbox value
+                    isOpen247: isOpen247,
                     lat: parseFloat(data[0].lat),
                     lon: parseFloat(data[0].lon),
                     status: 'pending',
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    createdAt: serverTimestamp() // Using the imported function
                 });
 
                 msg.innerText = "Success! Application submitted for review.";
                 msg.style.color = "green";
                 
-                // Clear form
+                // Clear form inputs...
                 document.getElementById('name').value = "";
                 document.getElementById('dlNum').value = "";
-                document.getElementById('panNum').value = "";
 
             } catch (err) {
-                console.error(err);
-                msg.innerText = "Error submitting application.";
+                console.error("Firebase Error:", err);
+                msg.innerText = "Error: " + err.message;
                 msg.style.color = "red";
             }
         }
