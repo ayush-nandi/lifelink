@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Partner Registration - LifeLink</title>
-    <link rel="stylesheet" href="partner.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="register.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -12,7 +12,7 @@
     <div class="container">
         <div class="glass-card">
             <h1 class="text-center">Register a Pharmacy</h1>
-            <p class="text-center" style="color:#666; margin-bottom: 20px;">
+            <p class="text-center" style="margin-bottom: 20px;">
                 Add a new shop to your portfolio. <br>
                 <span id="userEmailDisplay" style="color:black; font-weight:bold;"></span>
             </p>
@@ -26,7 +26,7 @@
                 <br><br>
 
                 <div style="background: #f1f8f1; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
-                    <h3 style="margin-bottom: 15px;">📍 Shop Location</h3>
+                    <h3 style="margin-bottom: 15px; color:#2E7D32; margin-top:0;">📍 Shop Location</h3>
                     <div class="grid-2">
                         <div>
                             <label>Address (Area)</label>
@@ -38,12 +38,16 @@
                         </div>
                     </div>
                     <br>
+                    
                     <div class="grid-2">
-                        <button type="button" onclick="locateOnMap()" class="btn-secondary">🔍 Search Address</button>
+                        <button type="button" onclick="locateOnMap()" class="btn-secondary">
+                            🔍 Search Address
+                        </button>
                         <button type="button" onclick="useCurrentLocation()" id="geoBtn" class="btn-secondary" style="background: #e8f5e9; border-color: #2E7D32;">
                             <i class="fas fa-location-arrow"></i> Use Current Location
                         </button>
                     </div>
+                    
                     <br>
                     <div id="map"></div>
                     <p class="text-center" style="color: #2E7D32; font-size: 0.9em; margin-top: 10px;">
@@ -61,8 +65,8 @@
                 </div>
                 <br>
 
-                <h3 style="border-bottom: 1px solid #eee; padding-bottom: 10px;">Official Verification</h3>
-                <p style="font-size: 0.8em; color: red;">* Licenses must be unique. Duplicate registrations will be rejected.</p>
+                <h3 style="border-bottom: 1px solid #eee; padding-bottom: 10px; color:#2E7D32;">Official Verification</h3>
+                <p style="font-size: 0.8em; color: red;">* Licenses must be unique.</p>
 
                 <label>Drug License No.</label>
                 <input type="text" id="dlNum" placeholder="e.g. WB/KOL/1234/2023">
@@ -86,7 +90,7 @@
         </div>
     </div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
     <script type="module">
         import { auth, db } from './js/firebase.js'; 
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
@@ -108,7 +112,6 @@
         }
         initMap();
 
-        // --- MAP FUNCTIONS ---
         function updateMapPosition(lat, lon) {
             map.setView([lat, lon], 16);
             marker.setLatLng([lat, lon]);
@@ -149,7 +152,6 @@
             }, () => { alert("Location denied."); btn.innerHTML = txt; btn.disabled = false; });
         }
 
-        // --- AUTH & CHECK SHOPS ---
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
@@ -158,19 +160,17 @@
             } else { window.location.href = "index.html"; }
         });
 
-        // 1. CHANGED: Just notify user, don't block them
         async function checkExistingShops(uid) {
             const q = query(collection(db, "shops"), where("ownerId", "==", uid));
             const snapshot = await getDocs(q);
             if (!snapshot.empty) {
                 const count = snapshot.size;
                 const msgDiv = document.getElementById('existingShopsMsg');
-                msgDiv.innerHTML = `ℹ️ <b>You currently manage ${count} shop(s).</b> <br> <a href="manage-shop.html">Click here to manage them</a> or register a new one below.`;
+                msgDiv.innerHTML = `ℹ️ <b>You already have ${count} shop(s).</b> <a href="manage-shop.html">Manage them here</a>`;
                 msgDiv.classList.remove('hidden');
             }
         }
 
-        // --- REGISTER LOGIC ---
         window.registerShop = async function() {
             if (!currentUser) return alert("Login required!");
             
@@ -185,50 +185,31 @@
             const msg = document.getElementById('msg');
 
             if(!selectedLat || !selectedLon) return alert("Please set location on map.");
-            if(!name || !address || !pincode || !phone || !dlNum || !gstin) return alert("Fill all fields including GSTIN & Drug License.");
+            if(!name || !address || !pincode || !phone || !dlNum || !gstin) return alert("Fill all fields.");
 
-            msg.innerText = "Verifying Licenses...";
-            msg.style.color = "blue";
+            msg.innerText = "Verifying..."; msg.style.color = "blue";
 
             try {
-                // 2. NEW: UNIQUE CHECKS
-                // Check GSTIN
+                // Unique Checks
                 const qGstin = query(collection(db, "shops"), where("gstin", "==", gstin));
                 const snapGstin = await getDocs(qGstin);
-                if (!snapGstin.empty) {
-                    msg.innerText = "Error: This GSTIN is already registered!";
-                    msg.style.color = "red";
-                    return;
-                }
+                if (!snapGstin.empty) { msg.innerText = "Error: GSTIN already used!"; msg.style.color = "red"; return; }
 
-                // Check Drug License
                 const qDl = query(collection(db, "shops"), where("dlNum", "==", dlNum));
                 const snapDl = await getDocs(qDl);
-                if (!snapDl.empty) {
-                    msg.innerText = "Error: This Drug License is already registered!";
-                    msg.style.color = "red";
-                    return;
-                }
+                if (!snapDl.empty) { msg.innerText = "Error: License already used!"; msg.style.color = "red"; return; }
 
-                msg.innerText = "Submitting Data...";
-
-                // Create Shop
                 await addDoc(collection(db, "shops"), {
-                    ownerId: currentUser.uid,
-                    ownerEmail: currentUser.email,
+                    ownerId: currentUser.uid, ownerEmail: currentUser.email,
                     name, address, pincode, phone, gstin, dlNum, panNum, isOpen247,
                     lat: selectedLat, lon: selectedLon,
                     status: 'pending', createdAt: serverTimestamp()
                 });
 
-                msg.innerText = "Success! Redirecting...";
-                msg.style.color = "green";
+                msg.innerText = "Success! Redirecting..."; msg.style.color = "green";
                 setTimeout(() => window.location.href = "manage-shop.html", 2000);
-
             } catch (e) {
-                console.error(e);
-                msg.innerText = "Error: " + e.message;
-                msg.style.color = "red";
+                console.error(e); msg.innerText = "Error: " + e.message; msg.style.color = "red";
             }
         }
     </script>

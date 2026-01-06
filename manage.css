@@ -1,0 +1,285 @@
+/* --- manage.css (Green Theme & Full Width Grid) --- */
+:root {
+    --primary-green: #2E7D32;  /* Deep Forest Green */
+    --light-green: #E8F5E9;    /* Soft Mint Background */
+    --accent-green: #43A047;   /* brighter green for buttons */
+    --white: #ffffff;
+    --text-dark: #2c3e50;
+    --text-grey: #546e7a;
+    --danger: #c62828;         /* Deep red for delete */
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+    --shadow-lg: 0 10px 30px rgba(0,0,0,0.15);
+    --radius: 16px;
+}
+
+body {
+    font-family: 'Segoe UI', 'Inter', sans-serif;
+    background-color: var(--light-green); /* THE GREEN BACKGROUND */
+    color: var(--text-dark);
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+/* FULL WIDTH CONTAINER */
+.container {
+    width: 96%;             /* Occupy most of the screen */
+    max-width: 1600px;      /* But don't get ridiculous on ultrawide monitors */
+    margin: 0 auto;
+    padding: 30px 20px;     /* Reduced top padding */
+    box-sizing: border-box;
+}
+
+/* --- HEADER --- */
+.header-flex {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 40px; border-bottom: 2px solid rgba(46, 125, 50, 0.1);
+    padding-bottom: 20px;
+}
+h1 { color: var(--primary-green); margin: 0; font-size: 2.2rem; letter-spacing: -0.5px; }
+.subtitle { color: var(--text-grey); margin-top: 5px; font-size: 1rem; }
+
+.btn-back {
+    text-decoration: none; color: var(--text-grey); font-weight: 700;
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 20px; border-radius: 50px; transition: all 0.2s;
+    background: white; box-shadow: var(--shadow-sm);
+}
+.btn-back:hover { color: var(--primary-green); transform: translateX(-3px); }
+
+/* --- LOADING & EMPTY STATES --- */
+#loading { color: var(--primary-green); font-size: 1.2rem; font-weight: 600; }
+
+.empty-state-card {
+    background: var(--white); padding: 60px; border-radius: var(--radius);
+    box-shadow: var(--shadow-sm); text-align: center;
+    border: 2px dashed rgba(46, 125, 50, 0.2); max-width: 600px; margin: 50px auto;
+}
+
+/* --- SHOP CARD GRID --- */
+.shops-grid {
+    display: grid;
+    /* Auto-fit columns, minimum 350px wide */
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 30px;
+    margin-bottom: 50px;
+}
+
+.shop-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    display: flex; flex-direction: column;
+}
+/* Hover effect for attractiveness */
+.shop-card:hover {
+    transform: translateY(-7px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent-green);
+}
+
+/* Status Banner */
+.card-status-bar {
+    padding: 10px 20px; font-size: 0.8rem; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 8px;
+}
+.status-approved { background: #E8F5E9; color: var(--primary-green); border-bottom: 2px solid #A5D6A7; }
+.status-pending { background: #FFF8E1; color: #F57F17; border-bottom: 2px solid #FFE082; }
+
+.card-content { padding: 25px; flex: 1; }
+.card-content h3 { margin: 0 0 10px 0; color: var(--primary-green); font-size: 1.5rem; }
+.card-address { color: var(--text-grey); display: flex; gap: 10px; margin-bottom: 15px; line-height: 1.5; }
+.card-footer {
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid #eee; padding-top: 15px;
+    font-size: 0.9rem; color: #666; font-weight: 600;
+}
+.badge-247 { background: var(--light-green); color: var(--primary-green); padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; }
+
+/* Card Action Buttons */
+.card-actions { display: flex; }
+.btn-card-action {
+    flex: 1; border: none; padding: 15px; font-weight: 700; cursor: pointer;
+    font-size: 1rem; transition: background 0.2s; display: flex;
+    align-items: center; justify-content: center; gap: 8px;
+}
+.btn-view { background: var(--primary-green); color: white; }
+.btn-view:hover { background: var(--accent-green); }
+.btn-delete { background: white; color: var(--danger); border-top: 1px solid #eee; max-width: 70px; }
+.btn-delete:hover { background: #ffebee; color: #b71c1c; }
+
+
+/* --- MODAL (Popup) --- */
+.modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; display: flex; justify-content: center; align-items: center; }
+.modal.hidden { display: none; }
+/* 1. The Blurry Background (Layer 1) */
+.modal-backdrop {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(46, 125, 50, 0.4); /* Your Green Tint */
+    backdrop-filter: blur(5px);         /* The Blur Effect */
+    z-index: 1;                         /* Sit behind the content */
+}
+/* 2. The Edit Form Modal (Layer 10 - Above Background) */
+.modal-content {
+    position: relative; 
+    width: 700px; 
+    background: white; 
+    z-index: 10;                        /* CRITICAL: Puts it above the blur */
+    border-radius: 20px; 
+    box-shadow: var(--shadow-lg);
+    display: flex; 
+    flex-direction: column; 
+    max-height: 92vh;
+    animation: slideUp 0.3s ease-out;
+}
+@keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+.modal-header { padding: 25px 35px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+.modal-header h2 { margin: 0; color: var(--primary-green); }
+.close-btn { background: white; border: 2px solid #eee; width: 35px; height: 35px; border-radius: 50%; font-size: 1.2rem; color: #999; cursor: pointer; display:flex; align-items:center; justify-content:center; transition:0.2s;}
+.close-btn:hover { border-color: var(--danger); color: var(--danger); transform: rotate(90deg); }
+
+.modal-body { padding: 35px; overflow-y: auto; background: #fafafa; }
+.modal-footer { padding: 25px 35px; border-top: 1px solid #eee; background: white; text-align: right; border-radius: 0 0 20px 20px; }
+
+/* Modal Form Styles */
+.form-section { background: white; padding: 25px; border-radius: 12px; box-shadow: var(--shadow-sm); margin-bottom: 25px; }
+.section-title { font-size: 1.1rem; color: var(--primary-green); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+
+label { display: block; font-weight: 700; font-size: 0.9rem; margin-bottom: 8px; color: var(--text-dark); }
+input[type="text"] {
+    width: 100%; padding: 14px; border: 2px solid #e0e0e0; border-radius: 10px;
+    font-size: 1rem; box-sizing: border-box; outline: none; transition: 0.3s; background: #f9f9f9;
+}
+input[type="text"]:focus { border-color: var(--primary-green); background: white; box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.1); }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+/* Buttons */
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-green), var(--accent-green));
+    color: white; padding: 14px 35px; border: none; border-radius: 50px;
+    font-size: 1.1rem; font-weight: 700; cursor: pointer;
+    box-shadow: 0 4px 15px rgba(46, 125, 50, 0.3); transition: transform 0.2s;
+    text-decoration: none; display: inline-block;
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(46, 125, 50, 0.4); }
+
+.btn-outline {
+    background: white; border: 2px solid var(--primary-green);
+    color: var(--primary-green); padding: 10px; border-radius: 8px;
+    font-weight: 700; cursor: pointer; width: 100%; transition:0.2s;
+}
+.btn-outline:hover { background: var(--light-green); }
+
+.btn-dashed {
+    display: inline-block; padding: 15px 40px; border: 2px dashed #a5d6a7;
+    color: var(--primary-green); border-radius: 50px; text-decoration: none;
+    font-weight: 700; background: rgba(232, 245, 233, 0.5); transition: 0.2s;
+}
+.btn-dashed:hover { background: var(--light-green); border-color: var(--primary-green); }
+
+/* Map & Utilities */
+#map { height: 300px; width: 100%; border-radius: 12px; margin-top: 20px; border: 3px solid white; box-shadow: var(--shadow-sm); }
+.map-helper { text-align: center; font-size: 0.85rem; color: var(--primary-green); margin-top: 10px; font-weight: 600; }
+
+.locked-box { background: #e8f5e9; padding: 20px; border-radius: 12px; border: 1px solid #c8e6c9; }
+.locked-label { font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: #666; }
+.locked-value { font-family: monospace; font-weight: 700; color: var(--primary-green); font-size: 1.1rem; margin-top: 5px; }
+
+.checkbox-flex { display: flex; align-items: center; gap: 12px; padding: 15px; background: white; border-radius: 10px; border: 2px solid #e0e0e0; cursor:pointer; }
+.checkbox-flex input { width: 20px; height: 20px; accent-color: var(--primary-green); }
+
+.text-center { text-align: center; }
+.hidden { display: none; }
+
+/* --- APPEND THIS TO manage.css --- */
+
+/* 1. TOAST NOTIFICATIONS (Success/Error popups) */
+#toastContainer {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.toast {
+    background: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 300px;
+    border-left: 5px solid;
+    animation: slideInRight 0.3s ease-out;
+}
+
+.toast-success { border-left-color: var(--primary-green); }
+.toast-success i { color: var(--primary-green); }
+
+.toast-error { border-left-color: var(--danger); }
+.toast-error i { color: var(--danger); }
+
+@keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fadeOut {
+    to { opacity: 0; transform: translateX(20px); }
+}
+
+/* 3. The Delete Confirmation Box (Layer 10 - Above Background) */
+.confirm-content {
+    position: relative;                 /* Required for z-index to work */
+    z-index: 10;                        /* CRITICAL: Puts it above the blur */
+    background: white;
+    width: 400px;
+    padding: 30px;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.confirm-icon {
+    width: 60px; height: 60px;
+    background: #ffebee;
+    color: var(--danger);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem;
+    margin: 0 auto 20px auto;
+}
+
+.confirm-title { font-size: 1.2rem; margin-bottom: 10px; color: var(--text-dark); }
+.confirm-text { color: var(--text-grey); margin-bottom: 25px; font-size: 0.95rem; line-height: 1.5; }
+
+.confirm-actions { display: flex; gap: 15px; }
+.btn-confirm-delete {
+    background: var(--danger); color: white; border: none; padding: 12px;
+    border-radius: 8px; flex: 1; font-weight: 700; cursor: pointer;
+}
+.btn-confirm-delete:hover { background: #b71c1c; }
+
+.btn-cancel {
+    background: #f5f5f5; color: var(--text-dark); border: none; padding: 12px;
+    border-radius: 8px; flex: 1; font-weight: 700; cursor: pointer;
+}
+.btn-cancel:hover { background: #e0e0e0; }
