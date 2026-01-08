@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore Camps</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body class="bg-yellow-50 min-h-screen">
+    <nav class="bg-yellow-400 p-6 shadow-md flex justify-between items-center">
+        <h1 class="text-xl font-black uppercase text-yellow-900">Discover Camps</h1>
+        <button onclick="window.location.href='camps-dashboard.html'" class="bg-white/40 px-4 py-2 rounded-lg font-bold text-sm">Dashboard</button>
+    </nav>
+
+    <main class="max-w-7xl mx-auto py-8 px-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-1 space-y-6">
+            <div class="bg-white p-6 rounded-[2rem] shadow-xl border-4 border-yellow-400">
+                <h2 class="font-black text-lg mb-4">Find Camps Near You</h2>
+                <div class="flex gap-2">
+                    <input type="text" id="searchInput" placeholder="Enter city or area..." class="w-full p-4 bg-yellow-50 rounded-xl outline-none ring-2 ring-yellow-100 focus:ring-yellow-400">
+                    <button id="searchBtn" class="bg-yellow-400 px-6 rounded-xl font-black">Go</button>
+                </div>
+            </div>
+
+            <div id="campList" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+                <p class="text-center text-slate-400 font-bold py-10">Search an area to see active camps.</p>
+            </div>
+        </div>
+
+        <div class="lg:col-span-2">
+            <div id="map" class="h-[75vh] w-full rounded-[3rem] shadow-2xl border-8 border-white z-0"></div>
+        </div>
+    </main>
+
+    <div id="regModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-[1000] p-6">
+        <div class="bg-white w-full max-w-md rounded-[3rem] p-10 relative">
+            <h2 id="modalTitle" class="text-2xl font-black mb-2 text-yellow-600">Register for Camp</h2>
+            <p id="modalDate" class="text-sm font-bold text-slate-400 mb-6 uppercase tracking-widest"></p>
+            <form id="registrationForm" class="space-y-4">
+                <input type="hidden" id="selectedCampId">
+                <input type="text" id="regName" placeholder="Your Full Name" required class="w-full p-4 bg-yellow-50 rounded-xl outline-none">
+                <input type="tel" id="regPhone" placeholder="Mobile Number" required class="w-full p-4 bg-yellow-50 rounded-xl outline-none">
+                <button type="submit" class="w-full bg-yellow-400 py-4 rounded-2xl font-black text-lg hover:bg-yellow-500 transition-all">Confirm Registration</button>
+                <button type="button" onclick="closeModal()" class="w-full text-slate-400 font-bold py-2">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="js/camps-explore.js"></script>
+</body>
+</html>

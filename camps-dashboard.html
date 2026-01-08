@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camps Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-yellow-50 min-h-screen font-sans">
+    <nav class="bg-yellow-400 p-6 shadow-lg flex justify-between items-center">
+        <h1 class="text-2xl font-black uppercase tracking-tighter text-yellow-900">CampMaker Hub</h1>
+        <button onclick="window.location.href='dashboard.html'" class="text-sm font-bold bg-white/50 px-4 py-2 rounded-lg">Back to Donation Site</button>
+    </nav>
+
+    <main class="max-w-5xl mx-auto py-12 px-6">
+        <div class="mb-10 text-center">
+            <h2 class="text-4xl font-black text-slate-900 mb-2">Manage Your Camps</h2>
+            <p class="text-slate-600">The central portal for all camp activities.</p>
+        </div>
+
+        <div id="actionContainer" class="bg-white rounded-[3rem] p-12 shadow-2xl border-4 border-yellow-200 flex flex-col items-center justify-center min-h-[300px]">
+            <div class="animate-bounce text-4xl mb-4">⛺</div>
+            <p class="font-bold text-slate-400">Verifying your status...</p>
+        </div>
+    </main>
+
+    <script type="module" src="js/camps-dashboard.js"></script>
+</body>
+</html>

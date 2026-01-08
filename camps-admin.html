@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel | CampHub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 min-h-screen font-sans">
+
+    <nav class="bg-red-600 p-6 shadow-lg flex justify-between items-center text-white">
+        <div class="flex items-center gap-2">
+            <span class="text-2xl">🛡️</span>
+            <h1 class="text-xl font-black uppercase italic">System Admin</h1>
+        </div>
+        <button onclick="window.location.href='camps-dashboard.html'" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg font-black text-[10px] uppercase">Back to Dashboard</button>
+    </nav>
+
+    <main class="max-w-4xl mx-auto py-12 px-6">
+        <section class="mb-12">
+            <h2 class="text-2xl font-black uppercase italic text-slate-800 mb-6 flex items-center gap-2">
+                <span class="bg-red-600 text-white p-2 rounded-lg text-xs">👤</span> Maker Applications
+            </h2>
+            <div id="pendingMakersList" class="grid grid-cols-1 gap-4">
+                </div>
+        </section>
+
+        <section>
+            <h2 class="text-2xl font-black uppercase italic text-slate-800 mb-6 flex items-center gap-2">
+                <span class="bg-red-600 text-white p-2 rounded-lg text-xs">⛺</span> Camp Submissions
+            </h2>
+            <div id="pendingCampsList" class="grid grid-cols-1 gap-4">
+                </div>
+        </section>
+    </main>
+
+    <script type="module" src="js/camps-admin.js"></script>
+</body>
+</html>

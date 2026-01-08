@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Camp</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body class="bg-yellow-50 py-12">
+    <div class="max-w-6xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-10">
+        <div class="bg-white p-10 rounded-[3rem] shadow-xl border-4 border-yellow-400">
+            <h2 class="text-3xl font-black mb-8 text-yellow-900">CAMP DETAILS</h2>
+            <form id="campForm" class="space-y-4">
+                <input type="text" id="campTitle" placeholder="Camp Title" required class="w-full p-4 bg-yellow-50 rounded-xl outline-none ring-2 ring-yellow-100 focus:ring-yellow-400">
+                <textarea id="campDescription" placeholder="Description" rows="3" required class="w-full p-4 bg-yellow-50 rounded-xl outline-none ring-2 ring-yellow-100 focus:ring-yellow-400"></textarea>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="date" id="campDate" required class="p-4 bg-yellow-50 rounded-xl outline-none ring-2 ring-yellow-100">
+                    <input type="number" id="expectedParticipants" placeholder="Expected Count" class="p-4 bg-yellow-50 rounded-xl outline-none ring-2 ring-yellow-100">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="time" id="startTime" required class="p-4 bg-yellow-50 rounded-xl outline-none ring-2 ring-yellow-100">
+                    <input type="time" id="endTime" required class="p-4 bg-yellow-50 rounded-xl outline-none ring-2 ring-yellow-100">
+                </div>
+
+                <input type="text" id="eligibilityCriteria" placeholder="Eligibility Criteria (e.g. Age 18+)" class="w-full p-4 bg-yellow-50 rounded-xl outline-none ring-2 ring-yellow-100">
+                
+                <div class="border-t-2 border-yellow-100 pt-4 space-y-4">
+                    <input type="text" id="locationText" placeholder="Full Address" class="w-full p-4 bg-yellow-50 rounded-xl outline-none ring-2 ring-yellow-100">
+                    <div class="grid grid-cols-3 gap-2">
+                        <input type="text" id="landmark" placeholder="Landmark" class="p-4 bg-yellow-50 rounded-xl border-none ring-2 ring-yellow-100">
+                        <input type="text" id="city" placeholder="City" class="p-4 bg-yellow-50 rounded-xl border-none ring-2 ring-yellow-100">
+                        <input type="text" id="pincode" placeholder="Pincode" class="p-4 bg-yellow-50 rounded-xl border-none ring-2 ring-yellow-100">
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="flex flex-col gap-6">
+            <div class="bg-white p-6 rounded-[2.5rem] shadow-xl border-4 border-yellow-400">
+                <div class="flex gap-2 mb-4">
+                    <input type="text" id="mapSearch" placeholder="Search area..." class="flex-1 p-4 bg-yellow-50 rounded-xl outline-none">
+                    <button id="searchBtn" class="bg-yellow-400 px-6 rounded-xl font-black">Find</button>
+                </div>
+                <div id="map" class="h-[400px] w-full rounded-2xl border-2 border-yellow-100"></div>
+            </div>
+            <button id="submitBtn" class="w-full bg-yellow-400 hover:bg-yellow-500 py-6 rounded-3xl font-black text-2xl shadow-2xl transition-all">PUBLISH CAMP</button>
+        </div>
+    </div>
+    <script type="module" src="js/camps-create.js"></script>
+</body>
+</html>

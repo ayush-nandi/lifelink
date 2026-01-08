@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camps Portal | Main Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-yellow-50 min-h-screen font-sans">
+
+    <nav class="bg-yellow-400 border-b-4 border-yellow-500 shadow-sm p-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <span class="text-2xl">⛺</span>
+                <h1 class="text-xl font-black uppercase tracking-tighter text-slate-900">CampHub Portal</h1>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <div id="adminNavPoint"></div>
+                <a href="index.html" class="text-sm font-black bg-slate-900 text-white px-6 py-2 rounded-xl hover:bg-black transition-all">Main Site</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto py-12 px-6">
+        <div class="text-center mb-12">
+            <h2 class="text-4xl font-black text-slate-900 mb-4 uppercase italic">Welcome to the Camps Portal</h2>
+            <p class="text-slate-600 font-medium">Your one-stop destination to explore local camps or manage your hosting profile.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+            <div class="bg-white p-8 rounded-[3rem] shadow-xl border-4 border-yellow-400 text-center flex flex-col items-center">
+                <div class="text-5xl mb-4">🔍</div>
+                <h3 class="font-black text-lg mb-2 text-slate-800">FIND CAMPS</h3>
+                <p class="text-slate-500 text-sm mb-6">Search for active camps in your city and register instantly.</p>
+                <button onclick="window.location.href='camps-explore.html'" class="w-full bg-yellow-400 py-4 rounded-2xl font-black text-sm hover:shadow-lg transition-all active:scale-95">OPEN MAP</button>
+            </div>
+
+            <div class="bg-slate-900 p-8 rounded-[3rem] shadow-xl text-center text-white flex flex-col items-center">
+                <div class="text-5xl mb-4">☤🩺</div>
+                <h3 class="font-black text-lg mb-2">MY BOOKINGS</h3>
+                <p class="text-slate-300 text-sm mb-6">Check the status of camps you have joined and see dates.</p>
+                <button onclick="window.location.href='camps-my-registrations.html'" class="w-full bg-white text-black py-4 rounded-2xl font-black text-sm hover:bg-yellow-400 transition-all active:scale-95">VIEW JOINED</button>
+            </div>
+
+            <div class="bg-white p-8 rounded-[3rem] shadow-xl border-4 border-yellow-200 text-center flex flex-col items-center">
+                <div class="text-5xl mb-4">℞☤💊🥼</div>
+                <h3 class="font-black text-lg mb-2 text-slate-800">MAKER HUB</h3>
+                <p class="text-slate-500 text-sm mb-6">Apply to become a maker or manage the camps you host.</p>
+                <button onclick="window.location.href='camps-dashboard.html'" class="w-full bg-yellow-100 text-yellow-800 py-4 rounded-2xl font-black text-sm hover:bg-yellow-200 transition-all active:scale-95">DASHBOARD</button>
+            </div>
+        </div>
+
+        <div id="recentActivity" class="bg-white p-10 rounded-[3.5rem] shadow-inner border-2 border-yellow-100">
+            <h3 class="text-xl font-black mb-8 flex items-center gap-3">
+                <span class="w-2 h-8 bg-yellow-400 rounded-full"></span>
+                RECENT ACTIVITY
+            </h3>
+            <div id="miniRegList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="col-span-full py-10 text-center">
+                    <div class="animate-pulse text-yellow-500 font-bold uppercase text-xs tracking-widest">Checking your registrations...</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script type="module" src="js/camp-temp-index.js"></script>
+</body>
+</html>
