@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Hub | LifeLink</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .glass-nav { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); }
+    .stat-card { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
+  </style>
+</head>
+<body class="bg-slate-50 min-h-screen pb-20">
+
+  <nav class="glass-nav border-b border-slate-200 px-8 py-4 flex justify-between items-center sticky top-0 z-[100]">
+    <h1 class="text-3xl font-black text-red-600 tracking-tighter italic cursor-pointer" onclick="window.location.href='index.html'">LifeLink</h1>
+    <div class="flex items-center gap-6">
+        <div class="text-right">
+            <p id="userName" class="text-sm font-black text-slate-900 leading-none tracking-tight">---</p>
+            <span id="userRoleBadge" class="hidden text-[9px] font-black text-red-500 uppercase tracking-widest mt-1">---</span>
+        </div>
+        <button id="logoutBtn" class="p-3 bg-slate-100 text-slate-400 rounded-2xl hover:bg-red-50 hover:text-red-600 transition-all">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto p-8">
+    <header class="mb-12">
+      <h2 class="text-5xl font-black text-slate-900 tracking-tight italic">Control Center</h2>
+      <p class="text-slate-500 font-medium mt-2">Manage your impact, inventory, and emergency responses.</p>
+    </header>
+
+    <section class="mb-16">
+        <div class="flex items-center gap-3 mb-8">
+            <span class="w-8 h-8 bg-red-600 text-white rounded-lg flex items-center justify-center font-black text-xs shadow-lg">01</span>
+            <h3 class="text-2xl font-black text-slate-800 tracking-tight">Standard Services</h3>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <a href="donate.html" class="bg-white p-10 rounded-[3rem] shadow-xl border border-slate-100 hover:scale-[1.02] transition-all group">
+                <span class="text-5xl mb-6 block">🩸</span>
+                <h4 class="text-xl font-black text-slate-900">Find Drives</h4>
+                <p class="text-slate-400 text-sm mt-2">Locate and register for donation camps.</p>
+            </a>
+            <a href="receive.html" class="bg-white p-10 rounded-[3rem] shadow-xl border border-slate-100 hover:scale-[1.02] transition-all group relative">
+                <div id="badge-user-help" class="hidden absolute top-8 right-8 bg-red-600 text-white text-[11px] font-black px-3 py-1 rounded-full animate-pulse tracking-widest">0</div>
+                <span class="text-5xl mb-6 block">🚨</span>
+                <h4 class="text-xl font-black text-slate-900">Emergency Help</h4>
+                <p class="text-slate-400 text-sm mt-2">Broadcast urgent needs to the network.</p>
+            </a>
+            <div id="hostBtnArea" class="min-h-[200px] flex items-center justify-center bg-white border border-slate-100 rounded-[3rem]">
+                <div class="w-6 h-6 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="organizerSection" class="hidden mb-16">
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center gap-3">
+                <span class="w-8 h-8 bg-slate-900 text-white rounded-lg flex items-center justify-center font-black text-xs">02</span>
+                <h3 class="text-2xl font-black text-slate-800 tracking-tight">Professional Console</h3>
+            </div>
+            <button onclick="openProfileModal()" class="bg-slate-100 text-slate-600 px-6 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200">Update Organization Profile</button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+            <a href="professional-receive.html" class="bg-slate-900 p-8 rounded-[2.5rem] shadow-2xl hover:bg-black transition-all">
+                <span class="text-3xl mb-4 block">🛰️</span>
+                <h4 class="text-lg font-black text-white">Staff Broadcast</h4>
+            </a>
+            <a href="stock.html" class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-100 hover:border-red-500 transition-all">
+                <span class="text-3xl mb-4 block">📦</span>
+                <h4 class="text-lg font-black text-slate-900">Manage Stock</h4>
+            </a>
+            <a href="create-event.html" class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-100 hover:border-red-500 transition-all">
+                <span class="text-3xl mb-4 block">📅</span>
+                <h4 class="text-lg font-black text-slate-900">Host Event</h4>
+            </a>
+            <a href="manage-events.html" class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-100 hover:border-red-500 transition-all">
+                <span class="text-3xl mb-4 block">👥</span>
+                <h4 class="text-lg font-black text-slate-900">Donor Records</h4>
+            </a>
+        </div>
+
+        <div class="bg-white p-10 rounded-[3rem] shadow-2xl border border-slate-100">
+            <div class="flex justify-between items-center mb-8">
+                <h4 id="connectionTitle" class="text-2xl font-black text-slate-900 italic tracking-tighter">Live Patient Connections</h4>
+                <div id="requestCountBadge" class="bg-red-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">0 Pending</div>
+            </div>
+            <div id="directRequestsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                </div>
+        </div>
+    </section>
+
+    <section id="adminSection" class="hidden">
+        <div class="flex items-center gap-3 mb-8">
+            <span class="w-8 h-8 bg-purple-600 text-white rounded-lg flex items-center justify-center font-black text-xs">03</span>
+            <h3 class="text-2xl font-black text-slate-800 tracking-tight">Admin Oversight</h3>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <a href="admin.html" class="stat-card p-10 rounded-[3rem] shadow-2xl relative overflow-hidden group">
+                <div id="badge-admin-apps" class="hidden absolute top-8 right-8 bg-white text-slate-900 text-[11px] font-black px-4 py-1.5 rounded-full shadow-xl">0</div>
+                <h4 class="text-3xl font-black text-white italic">Security Console</h4>
+                <p class="text-slate-400 text-sm mt-3 font-medium">Verify Hosts & Moderate System.</p>
+            </a>
+            <a href="archives.html" class="bg-white p-10 rounded-[3rem] shadow-xl border border-slate-100">
+                <h4 class="text-3xl font-black text-slate-900 italic">Success Archives</h4>
+                <p class="text-slate-400 text-sm mt-3 font-medium">Full history of resolved emergencies.</p>
+            </a>
+        </div>
+    </section>
+  </main>
+
+  <div id="profileModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md hidden items-center justify-center z-[999] p-4">
+    <div class="bg-white w-full max-w-md rounded-[3.5rem] shadow-2xl overflow-hidden">
+        <div class="p-10 bg-red-600 text-white">
+            <h4 class="text-2xl font-black italic">Organization Profile</h4>
+            <p class="text-red-100 text-[10px] font-black uppercase tracking-widest mt-1">Required for Live Verification</p>
+        </div>
+        <form id="profileForm" class="p-10 space-y-6">
+            <input id="orgName" type="text" placeholder="Organization Legal Name" class="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-sm outline-none" required />
+            <input id="orgPhone" type="tel" placeholder="Emergency Contact No." class="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-sm outline-none" required />
+            <input id="orgEmail" type="email" placeholder="Verification Email" class="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold text-sm outline-none" required />
+            <button type="submit" class="w-full bg-slate-900 text-white py-5 rounded-2xl font-black uppercase text-xs">Save Profile</button>
+            <button type="button" onclick="closeProfileModal()" class="w-full text-slate-400 font-bold text-[10px] uppercase mt-2">Cancel</button>
+        </form>
+    </div>
+  </div>
+
+  <script type="module" src="./js/dashboard.js"></script>
+</body>
+</html>

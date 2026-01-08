@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Professional Hub | LifeLink</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .glass-nav { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); }
+    .selected-card { border-color: #ef4444 !important; background-color: #fef2f2 !important; }
+  </style>
+</head>
+<body class="bg-slate-50 min-h-screen pb-20">
+
+  <nav class="glass-nav border-b border-slate-200 px-8 py-4 flex justify-between items-center sticky top-0 z-[100]">
+    <a href="index.html" class="text-3xl font-black text-red-600 tracking-tighter hover:text-red-700 transition-colors">LifeLink</a>
+    <div class="flex gap-4">
+        <span class="bg-slate-900 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center">Staff Console</span>
+        <a href="dashboard.html" class="px-6 py-2 bg-slate-100 text-slate-600 rounded-2xl text-sm font-bold">← Dashboard</a>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+    
+    <div class="lg:col-span-5 space-y-6">
+      <div class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-100">
+        <h3 class="text-xl font-black text-slate-900 mb-4">New Staff Broadcast</h3>
+        <form id="professionalForm" class="space-y-4">
+          <div class="grid grid-cols-2 gap-3">
+              <select id="reqType" class="p-3 bg-slate-50 rounded-xl border-none font-bold text-sm outline-none" required>
+                <option value="Blood">Blood</option><option value="Plasma">Plasma</option><option value="Platelets">Platelets</option>
+              </select>
+              <select id="bloodGroup" class="p-3 bg-slate-50 rounded-xl border-none font-bold text-sm outline-none" required>
+                <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+                <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
+              </select>
+          </div>
+          <input id="hospital" type="text" placeholder="Hospital Name" class="w-full p-3 bg-slate-50 rounded-xl border-none font-bold text-sm outline-none" required />
+          <div class="grid grid-cols-2 gap-3">
+            <input id="contactName" type="text" placeholder="Attendant" class="p-3 bg-slate-50 rounded-xl border-none font-bold text-sm outline-none" required />
+            <input id="contactPhone" type="tel" placeholder="Phone" class="p-3 bg-slate-50 rounded-xl border-none font-bold text-sm outline-none" required />
+          </div>
+          <button type="submit" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-black transition-all">Broadcast Request</button>
+        </form>
+      </div>
+
+      <div class="space-y-4">
+          <h4 class="text-xs font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Your Active Cases</h4>
+          <div id="staffRequestsFeed" class="space-y-3 max-h-[500px] overflow-y-auto pr-2">
+              </div>
+      </div>
+    </div>
+
+    <div class="lg:col-span-7 space-y-6">
+        <div class="flex justify-between items-center">
+            <h3 id="searchTitle" class="text-2xl font-black text-slate-900 tracking-tight italic">Resource Matching</h3>
+            <span id="matchCount" class="bg-red-50 text-red-600 px-4 py-1 rounded-full text-[10px] font-black uppercase">Select a case</span>
+        </div>
+        <div id="matchesGrid" class="min-h-[600px] space-y-4">
+            <div class="py-32 text-center bg-white rounded-[3rem] border-2 border-dashed border-slate-100">
+                <p class="text-slate-300 font-bold uppercase tracking-widest text-[10px]">Select an active case card to scan stock</p>
+            </div>
+        </div>
+    </div>
+  </main>
+
+  <div id="orgProfileModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md hidden items-center justify-center z-[999] p-4">
+    <div class="bg-white w-full max-w-lg rounded-[3.5rem] shadow-2xl overflow-hidden animate-in zoom-in duration-200">
+      <div class="p-10 bg-slate-900 text-white relative">
+          <button onclick="closeModal()" class="absolute top-8 right-10 text-white/50 hover:text-white text-3xl font-light">×</button>
+          <div class="flex items-center gap-5">
+              <div class="w-16 h-16 bg-red-600 rounded-2xl flex items-center justify-center text-2xl font-black italic shadow-xl shadow-red-900/40">L</div>
+              <h4 id="modalOrgName" class="text-2xl font-black tracking-tight leading-none">---</h4>
+          </div>
+      </div>
+      <div class="p-10 space-y-8">
+          <div class="grid grid-cols-2 gap-6">
+              <div><span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Email Address</span><p id="modalEmail" class="text-slate-800 font-bold text-sm truncate">---</p></div>
+              <div><span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Emergency Contact</span><p id="modalPhone" class="text-slate-800 font-bold text-sm">---</p></div>
+          </div>
+          <div class="flex gap-4">
+              <button id="directRequestBtn" class="flex-1 bg-red-600 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-red-100 hover:bg-red-700">Send Direct Request</button>
+              <button onclick="closeModal()" class="flex-1 bg-slate-100 text-slate-600 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest">Close Profile</button>
+          </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./js/professional-receive.js"></script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Emergency Hub | LifeLink</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .status-card { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
+    .pulse-red { animation: pulse 2s infinite; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(220, 38, 38, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); } }
+  </style>
+</head>
+<body class="bg-slate-50 min-h-screen pb-20">
+
+  <nav class="bg-white/90 backdrop-blur-md border-b border-slate-200 px-8 py-4 flex justify-between items-center sticky top-0 z-[100]">
+    <a href="index.html" class="text-3xl font-black text-red-600 tracking-tighter hover:text-red-700 transition-colors">LifeLink</a>
+    <a href="dashboard.html" class="px-6 py-2 bg-slate-100 text-slate-600 rounded-2xl text-sm font-bold">← Dashboard</a>
+  </nav>
+
+  <main class="max-w-7xl mx-auto p-8 grid grid-cols-1 lg:grid-cols-12 gap-12">
+    
+    <div class="lg:col-span-5 space-y-8">
+      <div>
+        <h2 class="text-4xl font-black text-slate-900 tracking-tight">Request Help</h2>
+        <p class="text-slate-500 font-medium mt-1">Broadcast emergencies to our verified network.</p>
+      </div>
+
+      <div id="formContainer">
+        <form id="receiveForm" class="bg-white p-8 rounded-[3rem] shadow-xl border border-slate-100 space-y-5">
+          <div>
+            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Resource Type</label>
+            <select id="reqType" class="w-full p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-red-500 font-bold outline-none" required>
+              <option value="Blood">Whole Blood</option>
+              <option value="Plasma">Plasma</option>
+              <option value="Platelets">Platelets</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Blood Group</label>
+            <select id="bloodGroup" class="w-full p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-red-500 font-bold outline-none" required>
+              <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+              <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Hospital Name</label>
+            <input id="hospital" type="text" placeholder="Hospital/Clinic name" class="w-full p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-red-500 font-bold outline-none" required />
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+              <input id="contactName" type="text" placeholder="Attendant Name" class="w-full p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-red-500 font-bold outline-none" required />
+              <input id="contactPhone" type="tel" placeholder="Phone No." class="w-full p-4 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-red-500 font-bold outline-none" required />
+          </div>
+          <button type="submit" id="broadcastBtn" class="w-full bg-red-600 text-white py-5 rounded-3xl font-black uppercase tracking-widest hover:bg-red-700 transition-all shadow-xl shadow-red-100 mt-4 pulse-red">
+              Initiate Broadcast
+          </button>
+        </form>
+      </div>
+
+      <div id="activeRequestContainer" class="hidden status-card text-white p-10 rounded-[3rem] shadow-2xl space-y-8 animate-in zoom-in duration-300">
+          <div class="flex justify-between items-start">
+              <div class="w-16 h-16 bg-red-600 rounded-3xl flex items-center justify-center text-3xl animate-pulse">🚨</div>
+              <span class="bg-red-600/20 text-red-500 px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">Live Broadcast</span>
+          </div>
+          <div>
+              <h3 id="activeType" class="text-3xl font-black italic">Blood Required</h3>
+              <p id="activeDetails" class="text-slate-400 font-bold mt-2 uppercase text-xs tracking-widest">---</p>
+          </div>
+          <button id="cancelBtn" class="w-full bg-white/10 hover:bg-white/20 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all">
+              Mark as Resolved / Cancel
+          </button>
+      </div>
+    </div>
+
+    <div class="lg:col-span-7 space-y-8">
+        <div class="flex justify-between items-end">
+            <h3 class="text-2xl font-black text-slate-900">Live Stock Matches</h3>
+            <div id="matchCount" class="bg-red-50 text-red-600 px-5 py-1.5 rounded-full text-xs font-black">0 Found</div>
+        </div>
+        <div id="matchesGrid" class="space-y-4 min-h-[400px]">
+            <div class="py-24 text-center opacity-30 italic">Searching for verified organizers...</div>
+        </div>
+    </div>
+  </main>
+
+  <div id="orgProfileModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md hidden items-center justify-center z-[999] p-4">
+    <div class="bg-white w-full max-w-lg rounded-[3.5rem] shadow-2xl overflow-hidden animate-in zoom-in duration-200">
+      <div class="p-10 bg-slate-900 text-white relative">
+          <button onclick="closeModal()" class="absolute top-8 right-10 text-white/50 hover:text-white text-3xl font-light">×</button>
+          <div class="flex items-center gap-5">
+              <div id="modalIcon" class="w-16 h-16 bg-red-600 rounded-2xl flex items-center justify-center text-2xl font-black italic">L</div>
+              <h4 id="modalOrgName" class="text-2xl font-black tracking-tight">Identity</h4>
+          </div>
+      </div>
+      <div class="p-10 space-y-8">
+          <div class="grid grid-cols-2 gap-6">
+              <div><span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Email Address</span><p id="modalEmail" class="text-slate-800 font-bold text-sm truncate">---</p></div>
+              <div><span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Contact No.</span><p id="modalPhone" class="text-slate-800 font-bold text-sm">---</p></div>
+          </div>
+          <div class="flex gap-4">
+              <button id="directRequestBtn" class="flex-1 bg-red-600 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-red-700">Send Direct Request</button>
+              <button onclick="closeModal()" class="flex-1 bg-slate-100 text-slate-600 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest">Close</button>
+          </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./js/receive.js"></script>
+</body>
+</html>

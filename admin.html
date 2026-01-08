@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Command Center | LifeLink</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .badge-pulse { animation: pulse 2s infinite; }
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
+    .glass-nav { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); }
+    .admin-card:hover { transform: translateY(-5px); border-color: #ef4444; }
+  </style>
+</head>
+<body class="bg-slate-50 min-h-screen pb-20">
+
+  <nav class="glass-nav border-b border-slate-200 px-8 py-5 flex justify-between items-center sticky top-0 z-[100]">
+    <div class="flex items-center gap-4">
+      <a href="index.html" class="flex items-center gap-2 group transition-all">
+        <h1 class="text-3xl font-black text-red-600 tracking-tighter italic">LifeLink</h1>
+        <span class="text-[10px] font-black text-slate-400 border border-slate-200 px-2 py-1 rounded-md tracking-widest uppercase mt-1">Super Admin</span>
+      </a>
+    </div>
+    
+    <div class="flex items-center gap-6">
+      <a href="dashboard.html" class="px-6 py-2.5 bg-slate-900 text-white rounded-2xl text-sm font-bold hover:shadow-xl transition-all">
+        ← Exit Console
+      </a>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto p-8">
+    
+    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+      
+      <button onclick="switchTab('host')" class="relative bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-200 hover:shadow-2xl transition-all text-left group">
+        <div id="badge-host" class="hidden absolute top-4 right-4 bg-red-600 text-white text-[11px] font-black px-3 py-1 rounded-full badge-pulse shadow-lg">0</div>
+        <div class="w-14 h-14 bg-red-50 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform">🏢</div>
+        <h3 class="text-xl font-bold text-slate-900 leading-tight">Host Requests</h3>
+        <p class="text-slate-400 text-[10px] mt-1 font-black uppercase tracking-widest">Verify Organizations</p>
+      </button>
+
+      <button onclick="switchTab('help')" class="relative bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-200 hover:shadow-2xl transition-all text-left group">
+        <div id="badge-help" class="hidden absolute top-4 right-4 bg-red-600 text-white text-[11px] font-black px-3 py-1 rounded-full shadow-lg">0</div>
+        <div class="w-14 h-14 bg-orange-50 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform">🚨</div>
+        <h3 class="text-xl font-bold text-slate-900 leading-tight">Live Requests</h3>
+        <p class="text-slate-400 text-[10px] mt-1 font-black uppercase tracking-widest">Active Emergency Feed</p>
+      </button>
+
+      <button onclick="switchTab('events')" class="relative bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-200 hover:shadow-2xl transition-all text-left group">
+        <div id="badge-events" class="hidden absolute top-4 right-4 bg-blue-600 text-white text-[11px] font-black px-3 py-1 rounded-full shadow-lg">0</div>
+        <div class="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform">📅</div>
+        <h3 class="text-xl font-bold text-slate-900 leading-tight">All Events</h3>
+        <p class="text-slate-400 text-[10px] mt-1 font-black uppercase tracking-widest">Moderate Drives</p>
+      </button>
+
+      <button onclick="switchTab('archives')" class="relative bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-200 hover:shadow-2xl transition-all text-left group">
+        <div class="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform">🏛️</div>
+        <h3 class="text-xl font-bold text-slate-900 leading-tight">Legacy Vault</h3>
+        <p class="text-slate-400 text-[10px] mt-1 font-black uppercase tracking-widest">Successful History</p>
+      </button>
+
+    </section>
+
+    <section class="bg-white rounded-[3.5rem] shadow-2xl border border-slate-100 min-h-[600px] overflow-hidden">
+      <div class="px-12 py-10 border-b border-slate-50 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-slate-50/30">
+        <div>
+          <h2 id="tabTitle" class="text-4xl font-black text-slate-900 tracking-tighter italic">Intelligence Feed</h2>
+          <p id="tabDesc" class="text-slate-500 font-medium mt-2">Platform-wide data streams monitored in real-time.</p>
+        </div>
+        <div id="tabStats" class="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm flex gap-8 px-8">
+            <div class="text-center">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">System Health</p>
+                <p class="text-green-500 font-black text-xs uppercase flex items-center gap-2">
+                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Optimal
+                </p>
+            </div>
+            <div class="text-center border-l border-slate-100 pl-8">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Records</p>
+                <p id="totalRecordsCount" class="text-slate-900 font-black text-xl leading-none">0</p>
+            </div>
+        </div>
+      </div>
+
+      <div id="contentGrid" class="p-12 grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="col-span-full py-32 text-center opacity-30 italic font-black text-slate-300 uppercase tracking-[0.3em]">
+          Select A Stream Above To Begin
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script type="module" src="./js/admin.js"></script>
+</body>
+</html>

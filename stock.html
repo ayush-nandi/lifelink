@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Inventory Management | LifeLink</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .stock-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+    .group-checkbox:checked + .group-tile { background-color: #ef4444; color: white; border-color: #ef4444; }
+  </style>
+</head>
+<body class="bg-slate-50 min-h-screen pb-20">
+
+  <nav class="bg-white/90 backdrop-blur-md border-b border-slate-200 px-8 py-4 flex justify-between items-center sticky top-0 z-[100]">
+    <a href="index.html" class="text-2xl font-black text-red-600 tracking-tighter">LifeLink</a>
+    <a href="dashboard.html" class="px-5 py-2 bg-slate-100 text-slate-600 rounded-xl text-sm font-bold">← Dashboard</a>
+  </nav>
+
+  <main class="max-w-7xl mx-auto p-8">
+    <header class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <div>
+        <h2 class="text-4xl font-black text-slate-900 tracking-tight">Medical Inventory</h2>
+        <p class="text-slate-500 font-medium mt-1 uppercase text-[10px] tracking-[0.2em]">Real-time Resource Oversight</p>
+      </div>
+      <button onclick="toggleModal(true)" class="bg-red-600 text-white px-8 py-4 rounded-2xl font-black shadow-xl shadow-red-100 hover:bg-red-700 transition-all">
+        + Update Inventory
+      </button>
+    </header>
+
+    <div id="stockGrid" class="stock-grid">
+      <div id="loadingIndicator" class="col-span-full py-20 text-center">
+        <div class="w-12 h-12 border-4 border-slate-200 border-t-red-600 rounded-full animate-spin mx-auto mb-4"></div>
+        <p class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Syncing Live Stream...</p>
+      </div>
+    </div>
+  </main>
+
+  <div id="stockModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-[999] p-4">
+    <div class="bg-white w-full max-w-2xl rounded-[3rem] shadow-2xl overflow-hidden animate-in zoom-in duration-200 max-h-[90vh] flex flex-col">
+      <div class="p-8 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
+        <div>
+          <h3 class="text-2xl font-black text-slate-900">Inventory Update</h3>
+          <p class="text-xs text-slate-400 font-medium">Select groups and define their quantities.</p>
+        </div>
+        <button onclick="toggleModal(false)" class="text-slate-400 hover:text-slate-900 text-3xl font-light">×</button>
+      </div>
+      
+      <form id="stockForm" class="p-8 space-y-8 overflow-y-auto">
+        <div>
+          <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Resource Type</label>
+          <select id="category" class="w-full p-4 bg-slate-100 rounded-2xl border-none focus:ring-2 focus:ring-red-500 font-bold outline-none" required>
+            <option value="Blood">Whole Blood</option>
+            <option value="Plasma">Plasma</option>
+            <option value="Platelets">Platelets</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">1. Select Available Groups</label>
+          <div class="grid grid-cols-4 gap-3">
+            <label class="relative"><input type="checkbox" name="bloodGroup" value="A+" class="hidden group-checkbox"><div class="group-tile p-4 text-center bg-slate-100 rounded-2xl font-black text-xs cursor-pointer transition-all border-2 border-transparent hover:bg-slate-200">A+</div></label>
+            <label class="relative"><input type="checkbox" name="bloodGroup" value="A-" class="hidden group-checkbox"><div class="group-tile p-4 text-center bg-slate-100 rounded-2xl font-black text-xs cursor-pointer transition-all border-2 border-transparent hover:bg-slate-200">A-</div></label>
+            <label class="relative"><input type="checkbox" name="bloodGroup" value="B+" class="hidden group-checkbox"><div class="group-tile p-4 text-center bg-slate-100 rounded-2xl font-black text-xs cursor-pointer transition-all border-2 border-transparent hover:bg-slate-200">B+</div></label>
+            <label class="relative"><input type="checkbox" name="bloodGroup" value="B-" class="hidden group-checkbox"><div class="group-tile p-4 text-center bg-slate-100 rounded-2xl font-black text-xs cursor-pointer transition-all border-2 border-transparent hover:bg-slate-200">B-</div></label>
+            <label class="relative"><input type="checkbox" name="bloodGroup" value="AB+" class="hidden group-checkbox"><div class="group-tile p-4 text-center bg-slate-100 rounded-2xl font-black text-xs cursor-pointer transition-all border-2 border-transparent hover:bg-slate-200">AB+</div></label>
+            <label class="relative"><input type="checkbox" name="bloodGroup" value="AB-" class="hidden group-checkbox"><div class="group-tile p-4 text-center bg-slate-100 rounded-2xl font-black text-xs cursor-pointer transition-all border-2 border-transparent hover:bg-slate-200">AB-</div></label>
+            <label class="relative"><input type="checkbox" name="bloodGroup" value="O+" class="hidden group-checkbox"><div class="group-tile p-4 text-center bg-slate-100 rounded-2xl font-black text-xs cursor-pointer transition-all border-2 border-transparent hover:bg-slate-200">O+</div></label>
+            <label class="relative"><input type="checkbox" name="bloodGroup" value="O-" class="hidden group-checkbox"><div class="group-tile p-4 text-center bg-slate-100 rounded-2xl font-black text-xs cursor-pointer transition-all border-2 border-transparent hover:bg-slate-200">O-</div></label>
+          </div>
+        </div>
+
+        <div id="dynamicInputsContainer" class="space-y-4">
+          <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">2. Set Quantities (Units)</label>
+          <div id="dynamicInputsList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <p class="text-slate-300 text-xs italic py-4">Select blood groups above to define stock levels...</p>
+          </div>
+        </div>
+
+        <button type="submit" id="submitBtn" class="w-full bg-slate-900 text-white py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-black transition-all shadow-xl shadow-slate-200 mt-6">Confirm and Push to Live</button>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="./js/stock.js"></script>
+</body>
+</html>

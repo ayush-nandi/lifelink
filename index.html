@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LifeLink | Saving Lives Together</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .hero-gradient { background: radial-gradient(circle at top right, #fff5f5, #ffffff); }
+  </style>
+</head>
+<body class="hero-gradient min-h-screen">
+
+  <nav class="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
+    <div class="flex items-center gap-2">
+      <div class="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center text-white font-black italic">L</div>
+      <h1 class="text-2xl font-black text-slate-900 tracking-tighter">LifeLink</h1>
+    </div>
+
+    <div id="authArea">
+      <div class="h-8 w-24 bg-slate-100 animate-pulse rounded-xl"></div>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto px-6 py-20 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-12">
+    
+    <div class="flex-1 space-y-8">
+      <h2 class="text-5xl md:text-7xl font-black text-slate-900 leading-[1.1]">
+        One connection <br> <span class="text-red-600">One life saved.</span>
+      </h2>
+      <p class="text-xl text-slate-500 max-w-lg leading-relaxed">
+        The most reliable platform for blood, plasma, and stem cell donation coordination. Join our verified network of heroes.
+      </p>
+
+      <div class="flex flex-col sm:flex-row gap-4">
+        <button id="mainActionBtn" class="bg-red-600 text-white px-10 py-5 rounded-2xl font-black text-lg hover:bg-red-700 transition-all shadow-xl shadow-red-200 active:scale-95">
+          Start Donating
+        </button>
+        <button class="bg-white border-2 border-slate-100 text-slate-600 px-10 py-5 rounded-2xl font-bold hover:bg-slate-50 transition-all">
+          Learn More
+        </button>
+      </div>
+    </div>
+
+    <div class="flex-1 hidden md:block">
+      <img src="https://img.freepik.com/free-vector/blood-donation-concept-illustration_114360-5394.jpg" alt="LifeLink" class="w-full max-w-md mx-auto">
+    </div>
+
+  </main>
+
+  <script type="module" src="./js/home.js"></script>
+</body>
+</html>
