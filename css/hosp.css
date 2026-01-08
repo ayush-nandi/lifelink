@@ -1,13 +1,15 @@
-/* */
+/* --- COOL BLUE PALETTE --- */
 :root {
-  --primary: #d32f2f;       /* Deep Red */
-  --primary-light: #ff6659; /* Lighter Red */
-  --bg-color: #ffebee;      /* Very Light Red Background */
+  --primary: #1976D2;       /* Material Blue 700 - Professional & Calm */
+  --primary-light: #42A5F5; /* Lighter Blue - Friendly */
+  --bg-color: #E3F2FD;      /* Very Light Blue - Easy on eyes */
   --white: #ffffff;
-  --text-dark: #2c3e50;
-  --text-light: #546e7a;
-  --shadow: 0 4px 6px rgba(211, 47, 47, 0.15);
-  --shadow-hover: 0 10px 15px rgba(211, 47, 47, 0.2);
+  --text-dark: #2c3e50;     /* Dark Blue-Grey */
+  --text-light: #546e7a;    /* Muted Blue-Grey */
+  
+  /* Blue-tinted shadows */
+  --shadow: 0 4px 6px rgba(25, 118, 210, 0.15);
+  --shadow-hover: 0 10px 15px rgba(25, 118, 210, 0.25);
 }
 
 body {
@@ -22,13 +24,14 @@ body {
 
 /* Header */
 header {
-  background: linear-gradient(135deg, var(--primary), #b71c1c);
+  /* Gradient from Primary Blue to a slightly deeper Blue */
+  background: linear-gradient(135deg, var(--primary), #0D47A1);
   color: var(--white);
-  padding: 15px 30px; /* Increased side padding slightly */
+  padding: 15px 30px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   display: flex;
   align-items: center;
-  justify-content: flex-start; /* Changed from center to flex-start (left) */
+  justify-content: flex-start;
 }
 
 header h1 {
@@ -120,10 +123,10 @@ input[type=range] {
   padding-right: 5px; 
 }
 
-/* Custom Scrollbar */
+/* Custom Scrollbar - Blue Tinted */
 #hospital-list::-webkit-scrollbar { width: 6px; }
 #hospital-list::-webkit-scrollbar-track { background: transparent; }
-#hospital-list::-webkit-scrollbar-thumb { background: #ffcdd2; border-radius: 3px; }
+#hospital-list::-webkit-scrollbar-thumb { background: #BBDEFB; border-radius: 3px; } /* Light Blue thumb */
 #hospital-list::-webkit-scrollbar-thumb:hover { background: var(--primary-light); }
 
 /* Empty State */
@@ -162,7 +165,7 @@ input[type=range] {
   position: absolute;
   top: 16px;
   right: 16px;
-  background: #ffebee;
+  background: var(--bg-color); /* Matches the light blue background */
   color: var(--primary);
   font-size: 0.75rem;
   font-weight: 600;
@@ -217,7 +220,8 @@ input[type=range] {
   transition: background 0.2s;
 }
 
-.info-item:hover { background: #fff5f5; }
+/* Hovering over info items now gives a very subtle blue tint */
+.info-item:hover { background: #F1F8E9; } 
 
 .info-item .icon {
   margin-right: 12px;
