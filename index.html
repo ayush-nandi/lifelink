@@ -3,49 +3,94 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LifeLink | Saving Lives Together</title>
+  <title>LifeLink | Medical Resource Network</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Inter', sans-serif; }
-    .hero-gradient { background: radial-gradient(circle at top right, #fff5f5, #ffffff); }
+    body { font-family: 'Inter', sans-serif; background-color: #ffffff; }
+    /* Seamless Header Integration */
+    .site-header { border-bottom: 1px solid #f1f5f9; background: #ffffff; }
+    .action-card { transition: all 0.3s ease-in-out; border: 1px solid #f1f5f9; }
+    .action-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05); }
   </style>
 </head>
-<body class="hero-gradient min-h-screen">
+<body class="min-h-screen">
 
-  <nav class="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center">
-    <div class="flex items-center gap-2">
-      <div class="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center text-white font-black italic">L</div>
-      <h1 class="text-2xl font-black text-slate-900 tracking-tighter">LifeLink</h1>
+  <header class="site-header px-10 py-6 flex justify-between items-center sticky top-0 z-[100]">
+    <div class="flex items-center gap-3 cursor-pointer" onclick="window.location.href='index.html'">
+      <div class="w-9 h-9 bg-red-600 rounded-xl flex items-center justify-center text-white font-black italic shadow-lg shadow-red-100">L</div>
+      <h1 class="text-2xl font-black text-slate-900 tracking-tighter italic">LifeLink</h1>
     </div>
 
-    <div id="authArea">
-      <div class="h-8 w-24 bg-slate-100 animate-pulse rounded-xl"></div>
+    <div id="authArea" class="flex items-center gap-3">
+      <div class="h-10 w-40 bg-slate-50 animate-pulse rounded-xl"></div>
     </div>
-  </nav>
+  </header>
 
-  <main class="max-w-7xl mx-auto px-6 py-20 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-12">
+  <main class="max-w-7xl mx-auto px-10 pt-20">
     
-    <div class="flex-1 space-y-8">
-      <h2 class="text-5xl md:text-7xl font-black text-slate-900 leading-[1.1]">
-        One connection <br> <span class="text-red-600">One life saved.</span>
-      </h2>
-      <p class="text-xl text-slate-500 max-w-lg leading-relaxed">
-        The most reliable platform for blood, plasma, and stem cell donation coordination. Join our verified network of heroes.
-      </p>
+    <div class="flex flex-col lg:flex-row items-center gap-16 mb-24">
+      <div class="flex-1 space-y-6 text-center lg:text-left">
+        <div class="inline-flex items-center gap-2 bg-slate-50 px-4 py-1.5 rounded-full border border-slate-100">
+            <span class="w-2 h-2 bg-red-600 rounded-full"></span>
+            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                <span id="livesSavedCount" class="text-slate-900">...</span> Successful Connections
+            </p>
+        </div>
 
-      <div class="flex flex-col sm:flex-row gap-4">
-        <button id="mainActionBtn" class="bg-red-600 text-white px-10 py-5 rounded-2xl font-black text-lg hover:bg-red-700 transition-all shadow-xl shadow-red-200 active:scale-95">
-          Start Donating
-        </button>
-        <button class="bg-white border-2 border-slate-100 text-slate-600 px-10 py-5 rounded-2xl font-bold hover:bg-slate-50 transition-all">
-          Learn More
-        </button>
+        <h2 class="text-5xl md:text-7xl font-black text-slate-900 leading-[1.1] tracking-tighter">
+          Connecting medical facilities <br> with <span class="text-red-600">people.</span>
+        </h2>
+        
+        <p class="text-lg text-slate-500 max-w-xl leading-relaxed font-medium">
+          LifeLink bridges the gap between verified medical stockists, local hospitals, and donors to ensure medical resources are accessible when they are needed most.
+        </p>
+
+        <div class="flex flex-wrap gap-4 justify-center lg:justify-start pt-4">
+          <a href="learn-more.html" class="bg-slate-900 text-white px-8 py-4 rounded-2xl font-bold text-sm hover:bg-black transition-all shadow-xl shadow-slate-100">
+            Learn More
+          </a>
+        </div>
+      </div>
+
+      <div class="flex-1 hidden lg:block opacity-80">
+        <img src="https://img.freepik.com/free-vector/blood-donation-concept-illustration_114360-5394.jpg" alt="Medical Coordination" class="w-full max-w-md mx-auto grayscale-[20%]">
       </div>
     </div>
 
-    <div class="flex-1 hidden md:block">
-      <img src="https://img.freepik.com/free-vector/blood-donation-concept-illustration_114360-5394.jpg" alt="LifeLink" class="w-full max-w-md mx-auto">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-20">
+        
+        <a href="dashboard.html" class="gate-required action-card bg-red-50/50 p-8 rounded-[2.5rem] flex flex-col justify-between h-[300px] group hover:bg-red-50 transition-colors">
+          <span class="text-4xl block">🩸</span>
+            <div>
+              <h4 class="text-xl font-black text-slate-800 italic">Blood Donation</h4>
+              <p class="text-slate-500 text-[11px] mt-3 font-medium leading-relaxed">Respond to immediate local requirements for blood and plasma through our verified network.</p>
+            </div>
+        </a>
+
+        <a href="shops.html" class="gate-required action-card bg-green-50/50 p-8 rounded-[2.5rem] flex flex-col justify-between h-[300px] group hover:bg-green-50 transition-colors">
+            <span class="text-4xl block">💊</span>
+            <div>
+                <h4 class="text-xl font-black text-slate-800 italic">Medical Shops</h4>
+                <p class="text-slate-500 text-[11px] mt-3 font-medium leading-relaxed">Connect with verified pharmacies to check real-time stock availability.</p>
+            </div>
+        </a>
+
+        <a href="hosp.html" class="action-card bg-blue-50/50 p-8 rounded-[2.5rem] flex flex-col justify-between h-[300px] group hover:bg-blue-50 transition-colors">
+            <span class="text-4xl block">🏥</span>
+            <div>
+                <h4 class="text-xl font-black text-slate-800 italic">Hospital Search</h4>
+                <p class="text-slate-500 text-[11px] mt-3 font-medium leading-relaxed">Locate and contact nearby hospitals and specialized medical centers.</p>
+            </div>
+        </a>
+
+        <a href="events.html" class="gate-required action-card bg-yellow-50/50 p-8 rounded-[2.5rem] flex flex-col justify-between h-[300px] group hover:bg-yellow-50 transition-colors">
+            <span class="text-4xl block">⛺</span>
+            <div>
+                <h4 class="text-xl font-black text-slate-800 italic">Health Camps</h4>
+                <p class="text-slate-500 text-[11px] mt-3 font-medium leading-relaxed">Find public health checkup camps and community blood drives.</p>
+            </div>
+        </a>
     </div>
 
   </main>
