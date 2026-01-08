@@ -294,6 +294,30 @@ button {
     align-items: center;
     gap: 15px;
 }
+/* --- Add to shops.css --- */
+
+/* Admin Button Style */
+.nav-btn.admin-link {
+    background-color: #1b5e20; /* Darker, authoritative green */
+    color: white;
+    border: 1px solid #1b5e20;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.nav-btn.admin-link:hover {
+    background-color: #000000; /* Black on hover */
+    border-color: #000000;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
 
 /* Responsive adjustment for mobile */
 @media (max-width: 600px) {

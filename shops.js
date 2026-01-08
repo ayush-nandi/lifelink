@@ -1,7 +1,9 @@
 // --- 1. IMPORTS ---
 // Ensure this path matches where your firebase.js is located
-import { db } from './js/firebase.js'; 
+import { db,auth } from './js/firebase.js'; 
 import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
 // --- 2. GLOBAL VARIABLES ---
 let map;
@@ -219,4 +221,54 @@ function renderPage() {
 window.changePage = function(d) {
     currentPage += d;
     renderPage();
+}
+
+// --- AUTH LISTENER & ADMIN CHECK ---
+// --- AUTH LISTENER & ADMIN CHECK ---
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        console.log("Logged in user:", user.email);
+
+        try {
+            // Check the 'users' collection for the user's role
+            const userDocRef = doc(db, "users", user.uid);
+            const userSnap = await getDoc(userDocRef);
+
+            if (userSnap.exists()) {
+                const userData = userSnap.data();
+                console.log("User Role:", userData.role); // Check console for this!
+
+                // Accepts 'admin' or 'Admin' just in case
+                if (userData.role === 'admin' || userData.role === 'Admin') {
+                    injectAdminButton();
+                }
+            } else {
+                console.log("No user profile found in database.");
+            }
+        } catch (error) {
+            console.error("Error checking admin status:", error);
+        }
+    }
+});
+
+function injectAdminButton() {
+    const navContainer = document.querySelector('.nav-links');
+    
+    // Prevent duplicate buttons
+    if (document.getElementById('adminBtnLink')) return;
+
+    if (navContainer) {
+        // Create the button element
+        const adminBtn = document.createElement('a');
+        adminBtn.href = "admin-shop.html"; 
+        adminBtn.id = "adminBtnLink";
+        adminBtn.className = "nav-btn admin-link"; // Uses special CSS class
+        adminBtn.innerHTML = `<i class="fas fa-shield-alt"></i> Admin Panel`;
+
+        // Insert it BEFORE the "Register Shop" button
+        navContainer.insertBefore(adminBtn, navContainer.firstChild);
+        console.log("Admin button injected.");
+    } else {
+        console.error("Could not find .nav-links container");
+    }
 };
