@@ -13,32 +13,35 @@ const profileModal = document.getElementById("profileModal");
 
 onAuthStateChanged(auth, async (user) => {
   if (user) {
-    // 1. STABLE PROFILE FETCH
     const userSnap = await getDoc(doc(db, "users", user.uid));
     if (userSnap.exists()) {
       const userData = userSnap.data();
+      const role = userData.role;
       userNameDisplay.innerText = userData.name;
 
-      if (userData.role === 'admin') {
-        roleBadge.innerText = "Super Admin";
-        roleBadge.classList.remove('hidden');
-        adminSection.classList.remove("hidden");
-        organizerSection.classList.remove("hidden");
-        initAdminEmergencyFeed();
-        initAdminBadges(); 
-      } 
-      else if (userData.role === 'organizer') {
-        roleBadge.innerText = "Verified Organizer";
+      // Logic for Admin/Organizer Specific UI
+      if (role === 'admin' || role === 'organizer') {
+        roleBadge.innerText = role.toUpperCase();
         roleBadge.classList.remove('hidden');
         organizerSection.classList.remove("hidden");
-        initOrganizerHandshakes(user.uid);
-        if (!userData.phone) openProfileModal();
+        
+        // NEW: Show the Professional Badge in Section 01
+        renderProfessionalStatus(role);
+
+        if (role === 'admin') {
+          adminSection.classList.remove("hidden");
+          initAdminEmergencyFeed();
+          initAdminBadges(); 
+        } else {
+          initOrganizerHandshakes(user.uid);
+          if (!userData.phone) openProfileModal();
+        }
       } 
       else {
+        // Standard User: Keep your working logic
         checkHostStatus(user.uid);
       }
       
-      // 2. STABLE NOTIFICATION BADGES
       initUserNotifications(user.uid);
     }
   } else {
@@ -47,7 +50,28 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 /* -----------------------------------------------------------
-   1. ORGANIZER: LIVE-BROADCAST ONLY HANDSHAKES
+   NEW: ROLE STATUS BADGE (HARDCODED)
+   ----------------------------------------------------------- */
+function renderProfessionalStatus(role) {
+    const hostBtnArea = document.getElementById("hostBtnArea");
+    const isAdmin = role === 'admin';
+    
+    // Change colors based on role (Admin = Purple, Organizer = Green)
+    hostBtnArea.className = `min-h-[200px] flex flex-col items-center justify-center rounded-[3rem] border transition-all ${isAdmin ? 'bg-purple-50 border-purple-100' : 'bg-green-50 border-green-100'}`;
+    
+    hostBtnArea.innerHTML = `
+        <div class="text-center">
+            <span class="text-4xl mb-3 block">${isAdmin ? '🛡️' : '✅'}</span>
+            <h4 class="text-[11px] font-black uppercase tracking-[0.2em] ${isAdmin ? 'text-purple-600' : 'text-green-600'}">
+                ${isAdmin ? 'Administration Level' : 'Verified Organizer'}
+            </h4>
+            <p class="text-[9px] font-bold text-slate-400 mt-1 uppercase">Credentials Active</p>
+        </div>
+    `;
+}
+
+/* -----------------------------------------------------------
+   1. ORGANIZER: RENDER HANDSHAKE (Email Removed)
    ----------------------------------------------------------- */
 function initOrganizerHandshakes(orgId) {
     const q = query(collection(db, "direct_requests"), where("orgId", "==", orgId), where("status", "==", "pending"));
@@ -63,13 +87,10 @@ function initOrganizerHandshakes(orgId) {
 
         for (const d of snap.docs) {
             const req = d.data();
-            
-            // SECONDARY CHECK: Verify if the original broadcast is still LIVE
             const broadcastSnap = await getDoc(doc(db, "help_requests", req.requestId));
             if (broadcastSnap.exists() && broadcastSnap.data().status === 'open') {
                 renderHandshakeCard(req);
             } else {
-                // If the broadcast is gone, auto-cleanup this handshake
                 await updateDoc(doc(db, "direct_requests", d.id), { status: 'resolved' });
             }
         }
@@ -78,29 +99,37 @@ function initOrganizerHandshakes(orgId) {
 
 function renderHandshakeCard(req) {
     const card = document.createElement("div");
-    card.className = "bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm hover:border-red-500 animate-in zoom-in transition-all";
+    card.className = "bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm hover:border-red-500 animate-in zoom-in transition-all flex flex-col justify-between";
+    
+    // CONTACT INFO: Only shows Name and Phone Number now
     card.innerHTML = `
-        <div class="flex justify-between items-start mb-4">
-            <span class="bg-red-50 text-red-600 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest animate-pulse">Live</span>
-            <p class="text-[9px] font-bold text-slate-300 uppercase">${new Date(req.timestamp?.toDate()).toLocaleTimeString()}</p>
-        </div>
-        <h4 class="font-black text-slate-900 leading-tight">${req.bloodGroup} ${req.type}</h4>
-        <p class="text-xs font-bold text-slate-500 mt-2">${req.hospital}</p>
-        <div class="mt-6 pt-6 border-t border-slate-50 flex justify-between items-center">
-            <div>
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Patient</p>
-                <p class="font-black text-slate-800 text-sm">${req.requesterName}</p>
+        <div>
+            <div class="flex justify-between items-start mb-4">
+                <span class="bg-red-50 text-red-600 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest animate-pulse">Live Handshake</span>
+                <p class="text-[9px] font-bold text-slate-300 uppercase">${req.timestamp ? new Date(req.timestamp.toDate()).toLocaleTimeString() : 'Recent'}</p>
             </div>
-            <a href="tel:${req.requesterPhone}" class="p-3 bg-red-600 text-white rounded-xl shadow-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l2.27-2.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-            </a>
+            <h4 class="font-black text-slate-900 leading-tight">${req.bloodGroup} ${req.type}</h4>
+            <p class="text-xs font-bold text-slate-500 mt-2 italic">${req.hospital}</p>
+            
+            <div class="mt-6 pt-6 border-t border-slate-50">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Patient Info</p>
+                <div class="bg-slate-50 p-4 rounded-2xl flex justify-between items-center">
+                    <div>
+                        <p class="font-black text-slate-800 text-sm">${req.requesterName}</p>
+                        <p class="text-xs font-bold text-red-600">${req.requesterPhone || 'No Phone'}</p>
+                    </div>
+                    <a href="tel:${req.requesterPhone}" class="p-3 bg-red-600 text-white rounded-xl shadow-lg transition-transform hover:scale-110">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l2.27-2.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                    </a>
+                </div>
+            </div>
         </div>
     `;
     directRequestsList.appendChild(card);
 }
 
 /* -----------------------------------------------------------
-   2. ADMIN: GLOBAL BROADCAST MONITOR
+   2. ADMIN: GLOBAL FEED
    ----------------------------------------------------------- */
 function initAdminEmergencyFeed() {
     const q = query(collection(db, "help_requests"), where("status", "==", "open"));
@@ -121,7 +150,7 @@ function initAdminEmergencyFeed() {
                     <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Contact Details</p>
                     <p class="text-xs font-bold text-slate-800">${h.contactName} | ${h.contactPhone}</p>
                 </div>
-                <button onclick="window.markResolved('${d.id}')" class="w-full mt-6 bg-slate-900 text-white py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest">Resolve & Archive</button>
+                <button onclick="window.markResolved('${d.id}')" class="w-full mt-6 bg-slate-900 text-white py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-black transition-all">Resolve & Archive</button>
             `;
             directRequestsList.appendChild(card);
         });
@@ -139,7 +168,7 @@ window.markResolved = async (id) => {
 };
 
 /* -----------------------------------------------------------
-   3. STABLE BADGE LISTENERS (Legacy logic)
+   3. STABLE BADGE LISTENERS
    ----------------------------------------------------------- */
 function initAdminBadges() {
     onSnapshot(query(collection(db, "host_requests"), where("status", "==", "pending")), (snap) => {
@@ -162,7 +191,7 @@ function initUserNotifications(uid) {
 }
 
 /* -----------------------------------------------------------
-   4. HOST STATUS & UTILS
+   4. HOST STATUS & PROFILE SYNC (Untouched logic)
    ----------------------------------------------------------- */
 async function checkHostStatus(uid) {
     const hostBtn = document.getElementById("hostBtnArea");
