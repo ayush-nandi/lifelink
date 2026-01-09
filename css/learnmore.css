@@ -1,0 +1,265 @@
+/* =========================================
+   1. CORE STYLES (From your design)
+   ========================================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", sans-serif;
+}
+
+body {
+    background-color: #0f0f0f;
+    color: #e6e6e6;
+    line-height: 1.6;
+}
+
+/* --- Hero Section --- */
+.hero {
+    background: linear-gradient(135deg, #000000, #1a1a1a);
+    color: #ffffff;
+    padding: 80px 20px;
+    text-align: center;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+.hero h1 {
+    font-size: 2.6rem;
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+}
+
+.hero p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+/* --- Generic Sections --- */
+.section {
+    padding: 70px 10%;
+}
+
+.section.light {
+    background-color: #141414;
+}
+
+.section h2 {
+    font-size: 2rem;
+    margin-bottom: 22px;
+    color: #ffffff;
+    position: relative;
+}
+
+.section h2::after {
+    content: "";
+    width: 60px;
+    height: 3px;
+    background: #ffffff;
+    display: block;
+    margin-top: 10px;
+}
+
+.section p {
+    margin-bottom: 18px;
+    color: #d0d0d0;
+}
+
+/* =========================================
+   2. INTERACTIVE ELEMENTS (Updated)
+   ========================================= */
+
+/* Common class for anything that opens a popup */
+.clickable {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.clickable:active {
+    transform: scale(0.98); /* Slight press effect */
+}
+
+/* --- Tech Boxes --- */
+.tech-box {
+    background: #0b0b0b;
+    padding: 28px;
+    border-left: 4px solid #ffffff;
+    margin-bottom: 24px;
+    border-radius: 10px;
+}
+
+.tech-box:hover {
+    background: #1a1a1a; /* Slight lighten on hover */
+    transform: translateX(5px); /* Slide effect */
+}
+
+/* --- Team Cards --- */
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 28px;
+}
+
+.team-card {
+    padding: 28px;
+    border-radius: 14px;
+    background: #121212;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6);
+    transition: transform 0.35s ease, box-shadow 0.35s ease;
+    /* Ensure relative positioning for any pseudo-elements */
+    position: relative; 
+}
+
+.team-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.8);
+}
+
+.team-card h3 {
+    margin-bottom: 12px;
+    color: #ffffff;
+}
+
+.team-card p {
+    color: #cfcfcf;
+}
+
+/* Color Themes */
+.red { border-left: 6px solid #e53935; }
+.green { border-left: 6px solid #43a047; }
+.blue { border-left: 6px solid #1e88e5; }
+.yellow { border-left: 6px solid #fbc02d; }
+
+
+/* =========================================
+   3. MODAL / POPUP STYLES (New & Dark Mode)
+   ========================================= */
+
+/* The Background Overlay */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.85); /* Darker overlay */
+    backdrop-filter: blur(4px); /* Blurs the background website */
+    animation: fadeIn 0.3s;
+}
+
+/* The Popup Box Itself */
+.modal-content {
+    background-color: #1a1a1a; /* Dark background to match theme */
+    color: #e6e6e6;
+    margin: 10% auto;
+    padding: 35px;
+    border: 1px solid #333;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    position: relative;
+    box-shadow: 0 5px 30px rgba(0,0,0,0.5);
+    animation: slideUp 0.3s;
+}
+
+/* The Close Button (X) */
+.close-btn {
+    color: #888;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 20px;
+    transition: color 0.2s;
+}
+
+.close-btn:hover {
+    color: #fff;
+}
+
+/* Modal Typography */
+#modalTitle {
+    margin-top: 0;
+    color: #ffffff;
+    border-bottom: 2px solid #333;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+}
+
+#modalBody {
+    line-height: 1.7;
+    color: #d0d0d0;
+    font-size: 1rem;
+}
+
+/* Links inside the Modal (Profile Buttons) */
+.modal-links {
+    margin-top: 25px;
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    border-top: 1px solid #333; /* Separator line */
+    padding-top: 20px;
+}
+
+.profile-link {
+    text-decoration: none;
+    background-color: #333; /* Dark button */
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    border: 1px solid #444;
+}
+
+.profile-link:hover {
+    background-color: #fff; /* White on hover */
+    color: #000;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(255, 255, 255, 0.1);
+}
+
+/* =========================================
+   4. ANIMATIONS & FOOTER
+   ========================================= */
+
+@keyframes fadeIn {
+    from {opacity: 0;}
+    to {opacity: 1;}
+}
+
+@keyframes slideUp {
+    from {transform: translateY(50px); opacity: 0;}
+    to {transform: translateY(0); opacity: 1;}
+}
+
+.footer {
+    text-align: center;
+    padding: 24px;
+    background: #000000;
+    color: #bdbdbd;
+    font-size: 0.9rem;
+    border-top: 1px solid #2a2a2a;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .section {
+        padding: 45px 6%;
+    }
+
+    .hero h1 {
+        font-size: 2.1rem;
+    }
+    
+    .modal-content {
+        margin: 20% auto; /* More margin on mobile */
+        width: 95%;
+        padding: 25px;
+    }
+}
