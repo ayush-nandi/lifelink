@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn More | LifeLink</title>
+    <link rel="stylesheet" href="./css/learnmore.css">
+</head>
+<body>
+
+<header class="hero">
+    <h1>About LifeLink</h1>
+    <p>Bridging people with medical help through technology and compassion.</p>
+</header>
+
+<section class="section">
+    <h2>What is LifeLink?</h2>
+    <p>
+        LifeLink is a purely charitable digital platform built to simplify access to medical assistance.
+        Its core mission is to make healthcare information, support, and coordination easier for people
+        during critical moments. LifeLink connects users to hospitals, pharmacies, events, and donation
+        systems through a unified and intuitive interface.
+    </p>
+</section>
+
+<section class="section light">
+    <h2>Technical Architecture</h2>
+    <p style="text-align: center; margin-bottom: 20px; font-size: 0.9rem; opacity: 0.7;">(Click boxes for deep details)</p>
+
+    <div class="tech-box clickable" onclick="openModal('frontend')">
+        <h3>Frontend</h3>
+        <p>
+            The frontend is developed using HTML, CSS, and JavaScript to create a responsive, user-friendly,
+            and accessible interface. The design focuses on clarity, ease of navigation, and smooth interaction.
+        </p>
+    </div>
+
+    <div class="tech-box clickable" onclick="openModal('backend')">
+        <h3>Backend</h3>
+        <p>
+            Firebase powers the backend of LifeLink, handling authentication, real-time data storage,
+            and secure user management. It ensures scalability and data integrity.
+        </p>
+    </div>
+</section>
+
+<section class="section">
+    <h2>Meet the Creators</h2>
+    <p style="text-align: center; margin-bottom: 20px; font-size: 0.9rem; opacity: 0.7;">(Click cards for profiles)</p>
+
+    <div class="team-grid">
+        <div class="team-card red clickable" onclick="openModal('soumik')">
+            <h3>Soumik Bhuniya</h3>
+            <p>Developed the Donation Brokerage system, enabling structured and transparent medical assistance.</p>
+        </div>
+
+        <div class="team-card green clickable" onclick="openModal('ayush')">
+            <h3>Ayush Nandi</h3>
+            <p>Developed the Pharmacy and Medical Shop Locator for fast access to nearby medical supplies.</p>
+        </div>
+
+        <div class="team-card blue clickable" onclick="openModal('avilekh')">
+            <h3>Avilekh Roy</h3>
+            <p>Developed the Hospital Information System to centralize verified healthcare data.</p>
+        </div>
+
+        <div class="team-card yellow clickable" onclick="openModal('prashun')">
+            <h3>Prashun Kumar Roy</h3>
+            <p>Developed the Event Organization module to coordinate medical and awareness events.</p>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <p>© 2026 LifeLink — Built for Humanity</p>
+</footer>
+
+<div id="infoModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <h2 id="modalTitle">Title</h2>
+        <div id="modalBody">
+            </div>
+        <div id="modalLinks" class="modal-links">
+            </div>
+    </div>
+</div>
+
+<script src="./js/learnmore.js"></script>
+</body>
+</html>
