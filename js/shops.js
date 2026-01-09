@@ -1,6 +1,6 @@
 // --- 1. IMPORTS ---
 // Ensure this path matches where your firebase.js is located
-import { db,auth } from './js/firebase.js'; 
+import { db,auth } from './firebase.js'; 
 import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
