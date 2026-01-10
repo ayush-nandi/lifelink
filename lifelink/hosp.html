@@ -6,25 +6,30 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   
-  <link rel="stylesheet" href="./css/hosp.css" />
-</head>
+  <link rel="stylesheet" href="ref.css" /> </head>
 <body>
 
   <header>
-    <h1>
-      <a href="index.html" style="text-decoration: none; color: inherit;">LifeLink</a> 
-      <span class="subtitle">Hospital Directory</span>
-    </h1>
+    <h1>LifeLink <span class="subtitle">Hospital Directory</span></h1>
   </header>
 
   <div class="container">
     
     <div class="sidebar">
       
+      <div class="search-panel">
+        <div class="input-group">
+          <input type="text" id="pincode-input" placeholder="Enter Pincode" maxlength="6" />
+          <button id="search-btn">Search</button>
+        </div>
+        <div class="divider"><span>OR</span></div>
+        <button id="detect-btn" class="outline-btn">📍 Detect My Location</button>
+      </div>
+
       <div class="controls">
         <label>Search Radius: <span id="radius-val">5</span> km</label>
         <input type="range" id="radius-slider" min="1" max="10" value="5" step="1">
@@ -35,7 +40,7 @@
 
       <div id="hospital-list">
         <div class="empty-state">
-          <p>Waiting for location...</p>
+          <p>Enter a pincode or detect your location to find nearby hospitals.</p>
         </div>
       </div>
 
@@ -67,7 +72,33 @@
     <div id="map"></div>
   </div>
 
+  <div id="ai-fab" class="ai-fab">
+    <div class="ai-tag">Personalized Search ✨</div>
+    <button id="ai-toggle-btn">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2 2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
+        <path d="M19 11v-2a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h1v3a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-3h1a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2z"/>
+        <path d="M9 11h.01"/><path d="M15 11h.01"/>
+      </svg>
+    </button>
+  </div>
+
+  <div id="ai-modal" class="ai-modal">
+    <div class="ai-header">
+      <h3>🏥 Health Assistant</h3>
+      <button id="close-ai">×</button>
+    </div>
+    <div class="ai-body" id="ai-chat-body">
+      <div class="ai-msg bot">
+        Hello! Find hospitals on the map first, then tell me what you need (e.g., "Heart surgery", "Pediatrician").
+      </div>
+    </div>
+    <div class="ai-input-area">
+      <input type="text" id="ai-input" placeholder="Ask for services..." />
+      <button id="ai-send-btn">➤</button>
+    </div>
+  </div>
+
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script type="module" src="./js/hosp.js"></script>
-</body>
+  <script type="module" src="ref.js"></script> </body>
 </html>
