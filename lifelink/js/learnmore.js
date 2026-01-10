@@ -42,7 +42,7 @@ const contentData = {
         `,
         links: [
             { text: "GitHub", url: "https://github.com/ayush-nandi" },
-            { text: "Portfolio", url: "#" }
+            { text: "LinkedIn", url: "https://linkedin.com/in/ayushnandi" }
         ]
     },
     avilekh: {
