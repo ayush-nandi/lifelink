@@ -1,5 +1,5 @@
 #api key
-lifelink/js/firebase.js
+./js/firebase.js
 
 # Logs
 logs
