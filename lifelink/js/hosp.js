@@ -6,9 +6,7 @@ let userLng = null;
 let allHospitalsData = []; 
 
 // --- CONFIGURATION ---
-// 👇👇👇 PASTE YOUR API KEY HERE 👇👇👇
 const GEMINI_API_KEY = "AIzaSyDyccW_Ue-f9us_UmVgCT4KrEXqM1ub4W8"; 
-// 👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆
 
 // --- ICONS ---
 const hospitalIcon = new L.Icon({
@@ -34,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const hospitalList = document.getElementById("hospital-list");
   const pincodeInput = document.getElementById("pincode-input");
   const searchBtn = document.getElementById("search-btn");
-  const detectBtn = document.getElementById("detect-btn");
+  const detectBtn = document.getElementById("detect-btn"); // Matches HTML ID
   const radiusSlider = document.getElementById("radius-slider");
   const radiusVal = document.getElementById("radius-val");
   
@@ -54,13 +52,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const aiSendBtn = document.getElementById("ai-send-btn");
   const aiChatBody = document.getElementById("ai-chat-body");
 
-  markersLayer = new L.LayerGroup();
-
   // --- MAP INIT ---
+  // Default View: India Center
   map = L.map("map", { zoomControl: false }).setView([20.5937, 78.9629], 5);
   L.control.zoom({ position: 'bottomright' }).addTo(map);
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: 'OSM' }).addTo(map);
-  markersLayer.addTo(map);
+  
+  markersLayer = new L.LayerGroup().addTo(map);
 
   // --- EVENT LISTENERS ---
   searchBtn.addEventListener("click", () => {
@@ -80,6 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   radiusSlider.addEventListener("change", () => {
+    // Only re-fetch if we already have a user location
     if (userLat && userLng) fetchHospitalsIRL(userLat, userLng);
   });
 
@@ -161,12 +160,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const radiusKm = radiusSlider.value;
     const radiusMeters = radiusKm * 1000;
     
-    // Increased timeout to 90 seconds
     hospitalList.innerHTML = `<div class='empty-state'><p>🔎 Scanning ${radiusKm}km radius... (This may take a moment)</p></div>`;
     
+    // Overpass API Query
     const queryStr = `[out:json][timeout:90];(node["amenity"="hospital"](around:${radiusMeters},${lat},${lng});way["amenity"="hospital"](around:${radiusMeters},${lat},${lng}););out center;`;
     
-    // ⚠️ SERVER ORDER UPDATE: Main server is usually more reliable (though slower)
     const servers = [
       "https://overpass-api.de/api/interpreter",
       "https://overpass.kumi.systems/api/interpreter",
@@ -196,7 +194,7 @@ document.addEventListener("DOMContentLoaded", () => {
     markersMap = {};
     
     if (!elements || !elements.length) {
-      hospitalList.innerHTML = "<div class='empty-state'><p>No hospitals found.</p></div>";
+      hospitalList.innerHTML = "<div class='empty-state'><p>No hospitals found in this range.</p></div>";
       return;
     }
 
@@ -242,7 +240,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // --- UPDATED AI LOGIC (FINAL ATTEMPT: gemini-flash-latest) ---
+  // --- AI LOGIC (Gemini Flash) ---
 
   async function handleAiQuery() {
     const userPrompt = aiInput.value.trim();
@@ -276,8 +274,6 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
 
     try {
-      // ⚠️ MODEL UPDATE: Using 'gemini-flash-latest'
-      // This is an alias that points to the current stable free model.
       const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
       
       const response = await fetch(url, {
@@ -287,8 +283,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       if (!response.ok) {
-        console.error("Gemini API Error Detail:", await response.text());
-        throw new Error(`API Error: ${response.status}. Check Console.`);
+        throw new Error(`API Error: ${response.status}`);
       }
 
       const data = await response.json();
@@ -304,7 +299,6 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         matchedIds = JSON.parse(cleanJson);
       } catch (e) {
-        console.error("AI returned invalid JSON:", aiText);
         matchedIds = [];
       }
 
@@ -381,7 +375,7 @@ document.addEventListener("DOMContentLoaded", () => {
     aiChatBody.scrollTop = aiChatBody.scrollHeight;
   }
 
-  // --- DETAILS PANEL ---
+  // --- DETAILS PANEL LOGIC ---
   async function openHospitalDetails(info, lat, lng, isMapClick = false) {
     hospitalList.style.display = "none";
     detailsPanel.style.display = "flex"; 
