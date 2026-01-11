@@ -7,7 +7,7 @@ let allHospitalsData = [];
 
 // --- CONFIGURATION ---
 // 👇👇👇 PASTE YOUR API KEY HERE 👇👇👇
-const GEMINI_API_KEY = "AIzaSyBtELq9zjsX6-3EgsOcQ2V-qyMxwn5Ozdk"; 
+const GEMINI_API_KEY = "AIzaSyDyccW_Ue-f9us_UmVgCT4KrEXqM1ub4W8"; 
 // 👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆
 
 // --- ICONS ---
@@ -462,4 +462,5 @@ document.addEventListener("DOMContentLoaded", () => {
     detailWebsite.target = "_blank";
     detailWebsite.closest('.info-item').style.display = "flex";
   }
+
 });
