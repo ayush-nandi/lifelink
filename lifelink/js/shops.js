@@ -3,7 +3,7 @@
 import { db,auth } from './firebase.js'; 
 import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+import { doc, getDoc, setDoc, increment, serverTimestamp, runTransaction } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
 // --- 2. GLOBAL VARIABLES ---
 let map;
@@ -175,6 +175,7 @@ function plotShopMarkers() {
     }
 }
 
+// --- 1. RENDER FUNCTION (Modified for Click-to-Expand) ---
 function renderPage() {
     const listContainer = document.getElementById('shopList');
     listContainer.innerHTML = "";
@@ -183,31 +184,46 @@ function renderPage() {
     const end = start + itemsPerPage;
     const pageShops = allShops.slice(start, end);
 
-    if (pageShops.length === 0 && allShops.length > 0) {
-        // Handle edge case if pagination goes out of bounds
-        currentPage = 1;
-        renderPage();
-        return;
-    }
-
     pageShops.forEach(shop => {
         const card = document.createElement('div');
         card.className = 'shop-card';
+        // We add an ID to the details div so we can toggle it
+        const detailsId = `details-${shop.id}`;
         
         const badge247 = shop.isOpen247 
-            ? `<span style="background: #e8f5e9; color: #2e7d32; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: bold; border: 1px solid #2e7d32; margin-left: 10px;">🟢 24/7</span>` 
+            ? `<span style="font-size:0.8em; background:#e8f5e9; color:#2e7d32; padding:2px 8px; border-radius:10px; border:1px solid #2e7d32;">24/7</span>` 
             : ``;
 
+        // HTML Structure: Summary (Visible) + Details (Hidden)
         card.innerHTML = `
-            <div class="shop-info">
-                <h3>${shop.name} ${badge247}</h3>
-                <p><i class="fas fa-map-marker-alt"></i> ${shop.address} - ${shop.pincode}</p>
-                <p><i class="fas fa-phone"></i> ${shop.phone || "N/A"}</p>
-                <span class="distance-badge">${shop.distance} km away</span>
+            <div class="shop-summary" onclick="toggleShopDetails('${shop.id}')">
+                <div>
+                    <h3>${shop.name} ${badge247}</h3>
+                    <span class="distance-badge" style="margin-top:5px;">${shop.distance} km away</span>
+                </div>
+                <div style="color:var(--text-grey); font-size:1.2rem;">
+                    <i class="fas fa-chevron-down"></i>
+                </div>
             </div>
-            <div>
-            <a href="https://www.google.com/maps/dir/?api=1&destination=${shop.lat},${shop.lon}" 
-               target="_blank" class="direction-btn">Get Directions</a>
+
+            <div id="${detailsId}" class="shop-details">
+                <p><i class="fas fa-map-marker-alt" style="color:var(--primary-green); width:20px;"></i> ${shop.address} - ${shop.pincode}</p>
+                <p><i class="fas fa-phone" style="color:var(--primary-green); width:20px;"></i> ${shop.phone || "N/A"}</p>
+                
+                <div class="action-buttons">
+                    <a href="https://www.google.com/maps/dir/?api=1&destination=${shop.lat},${shop.lon}" 
+                       target="_blank" 
+                       class="icon-btn btn-direction"
+                       onclick="trackAction('${shop.id}', 'directionClicks')">
+                       <i class="fas fa-directions"></i> Get Directions
+                    </a>
+                    
+                    <a href="tel:${shop.phone}" 
+                       class="icon-btn"
+                       onclick="trackAction('${shop.id}', 'phoneClicks')">
+                       <i class="fas fa-phone-alt"></i> Call Now
+                    </a>
+                </div>
             </div>
         `;
         listContainer.appendChild(card);
@@ -221,6 +237,124 @@ function renderPage() {
 window.changePage = function(d) {
     currentPage += d;
     renderPage();
+}
+
+// --- 2. INTERACTION & ANALYTICS LOGIC ---
+
+// Attached to window so HTML onclick can find it
+window.toggleShopDetails = function(shopId) {
+    const detailsDiv = document.getElementById(`details-${shopId}`);
+    const isHidden = !detailsDiv.classList.contains('active');
+    
+    // Toggle UI
+    if (isHidden) {
+        // Close others (Optional: keeps UI clean)
+        document.querySelectorAll('.shop-details').forEach(el => el.classList.remove('active'));
+        
+        detailsDiv.classList.add('active');
+        // Record the View (Analytics)
+        recordShopView(shopId);
+    } else {
+        detailsDiv.classList.remove('active');
+    }
+}
+
+window.trackAction = function(shopId, type) {
+    // type is 'directionClicks' or 'phoneClicks'
+    recordAnalytics(shopId, type);
+}
+
+// --- 3. CORE ANALYTICS ENGINE ---
+
+async function recordShopView(shopId) {
+    const user = auth.currentUser;
+    const now = Date.now();
+    const todayStr = new Date().toISOString().split('T')[0]; // "2023-10-27"
+
+    // A. PRELIMINARY CHECK (Local Storage) - Blocks spam from same device immediately
+    const localKey = `view_${shopId}_${todayStr}`;
+    if (localStorage.getItem(localKey)) {
+        console.log("Analytics: View debounced locally.");
+        return; 
+    }
+
+    // B. LOGGED-IN USER CHECK (Firestore) - Blocks spam from same account across devices
+    if (user) {
+        // Prevent owner from boosting their own shop
+        // (Ideally we check this, but we need the shop ownerId available in the shop object)
+        const shop = allShops.find(s => s.id === shopId);
+        if (shop && shop.ownerId === user.uid) {
+            console.log("Analytics: Owner viewing own shop ignored.");
+            return;
+        }
+
+        const userViewRef = doc(db, "shops", shopId, "unique_views", user.uid);
+        
+        try {
+            await runTransaction(db, async (transaction) => {
+                const userViewDoc = await transaction.get(userViewRef);
+                
+                let shouldCount = true;
+                if (userViewDoc.exists()) {
+                    const lastViewed = userViewDoc.data().lastViewedAt.toMillis();
+                    // Check if 24 hours have passed
+                    if ((now - lastViewed) < 24 * 60 * 60 * 1000) {
+                        shouldCount = false;
+                    }
+                }
+
+                if (shouldCount) {
+                    // 1. Update User Tracking Doc
+                    transaction.set(userViewRef, { 
+                        lastViewedAt: serverTimestamp(),
+                        email: user.email // Optional: for debugging
+                    });
+
+                    // 2. Increment Daily Stats
+                    const statsRef = doc(db, "shops", shopId, "stats", todayStr);
+                    transaction.set(statsRef, { 
+                        views: increment(1),
+                        date: todayStr
+                    }, { merge: true });
+                    
+                    console.log("Analytics: Verified View Recorded (User).");
+                }
+            });
+            // Lock local storage after successful DB write
+            localStorage.setItem(localKey, "true");
+
+        } catch (e) {
+            console.error("Analytics Error:", e);
+        }
+
+    } else {
+        // C. GUEST USER (Just rely on LocalStorage + simple increment)
+        // We accept that guests might clear cache and view again, but that's acceptable noise.
+        const statsRef = doc(db, "shops", shopId, "stats", todayStr);
+        await setDoc(statsRef, { 
+            views: increment(1),
+            date: todayStr
+        }, { merge: true });
+        
+        localStorage.setItem(localKey, "true");
+        console.log("Analytics: Guest View Recorded.");
+    }
+}
+
+async function recordAnalytics(shopId, field) {
+    const todayStr = new Date().toISOString().split('T')[0];
+    const statsRef = doc(db, "shops", shopId, "stats", todayStr);
+    
+    // We don't debounce clicks as strictly as views (user might mistakenly close map and reopen)
+    try {
+        await setDoc(statsRef, { 
+            [field]: increment(1), // Uses computed property name
+            date: todayStr 
+        }, { merge: true });
+        console.log(`Analytics: ${field} recorded.`);
+    } catch (e) {
+        console.error(e);
+    }
 }
 
 // --- AUTH LISTENER & ADMIN CHECK ---

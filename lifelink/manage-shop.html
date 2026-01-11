@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>My Pharmacies - LifeLink</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="./css/manage.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
 </head>
 <body>
 
@@ -103,16 +105,156 @@
         </div>
     </div>
 
+    <div id="analyticsModal" class="modal hidden">
+        <div class="modal-backdrop" onclick="closeAnalyticsModal()"></div>
+        <div class="modal-content" style="width: 700px; max-width: 95%;">
+            <div class="modal-header">
+                <h2>📊 Performance Analytics</h2>
+                <button onclick="closeAnalyticsModal()" class="close-btn"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <h3 id="analyticsShopName" style="color:var(--primary-green); margin-bottom: 20px;">Shop Name</h3>
+                
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 30px;">
+                    <div style="background:#e3f2fd; padding:15px; border-radius:8px; text-align:center;">
+                        <div style="font-size:0.9rem; color:#1565c0;">Total Views</div>
+                        <div id="statViews" style="font-size:1.8rem; font-weight:bold; color:#0d47a1;">0</div>
+                    </div>
+                    <div style="background:#e8f5e9; padding:15px; border-radius:8px; text-align:center;">
+                        <div style="font-size:0.9rem; color:#2e7d32;">Map Clicks</div>
+                        <div id="statDirs" style="font-size:1.8rem; font-weight:bold; color:#1b5e20;">0</div>
+                    </div>
+                    <div style="background:#fff3e0; padding:15px; border-radius:8px; text-align:center;">
+                        <div style="font-size:0.9rem; color:#e65100;">Calls</div>
+                        <div id="statCalls" style="font-size:1.8rem; font-weight:bold; color:#ef6c00;">0</div>
+                    </div>
+                </div>
+
+                <div style="height: 300px; width: 100%;">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+                <p style="text-align:center; color:#666; font-size:0.8rem; margin-top:10px;">Showing data for the last 30 days</p>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
     <script type="module">
         import { auth, db } from './js/firebase.js'; 
         import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-        import { collection, query, where, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+        import { collection, query, where, getDocs, doc, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
         let allShops = [];
         let currentShopId = null;
         let pendingDeleteId = null; // For confirmation modal
         let map, marker, selectedLat, selectedLon;
+
+        // Import Chart.js logic is handled by the CDN, we just use 'new Chart()'
+
+        let myChart = null; // Global variable for the chart instance
+
+        window.openAnalytics = async function(shopId, shopName) {
+            document.getElementById('analyticsModal').classList.remove('hidden');
+            document.getElementById('analyticsShopName').innerText = shopName;
+            
+            // Reset Counts
+            document.getElementById('statViews').innerText = "-";
+            document.getElementById('statDirs').innerText = "-";
+            document.getElementById('statCalls').innerText = "-";
+
+            const labels = [];
+            const dataViews = [];
+            const dataDirs = [];
+            
+            // 1. Calculate Date Range (Last 30 Days)
+            const today = new Date();
+            const datesToFetch = [];
+            for(let i=29; i>=0; i--) {
+                const d = new Date();
+                d.setDate(today.getDate() - i);
+                const str = d.toISOString().split('T')[0];
+                datesToFetch.push(str);
+                labels.push(d.toLocaleDateString('en-US', {month:'short', day:'numeric'}));
+            }
+
+            // 2. Fetch Data (Parallel Requests for speed)
+            // Note: In production, you might want to store a 'monthly aggregate' to save reads,
+            // but for now, 30 small reads is acceptable for an admin action.
+            
+            let totalViews = 0, totalDirs = 0, totalCalls = 0;
+            
+            // We create an array of Promises to fetch all days
+            const promises = datesToFetch.map(dateStr => 
+                getDoc(doc(db, "shops", shopId, "stats", dateStr))
+            );
+            
+            const snapshots = await Promise.all(promises);
+
+            snapshots.forEach(snap => {
+                if(snap.exists()) {
+                    const d = snap.data();
+                    const v = d.views || 0;
+                    const dir = d.directionClicks || 0;
+                    const c = d.phoneClicks || 0;
+
+                    dataViews.push(v);
+                    dataDirs.push(dir);
+                    
+                    totalViews += v;
+                    totalDirs += dir;
+                    totalCalls += c;
+                } else {
+                    dataViews.push(0);
+                    dataDirs.push(0);
+                }
+            });
+
+            // 3. Update UI Numbers
+            document.getElementById('statViews').innerText = totalViews;
+            document.getElementById('statDirs').innerText = totalDirs;
+            document.getElementById('statCalls').innerText = totalCalls;
+
+            // 4. Render Chart
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            
+            if(myChart) myChart.destroy(); // Destroy old chart if exists
+
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Views',
+                            data: dataViews,
+                            borderColor: '#2E7D32', // Green
+                            backgroundColor: 'rgba(46, 125, 50, 0.1)',
+                            fill: true,
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Direction Clicks',
+                            data: dataDirs,
+                            borderColor: '#1565C0', // Blue
+                            backgroundColor: 'transparent',
+                            borderDash: [5, 5],
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, suggestedMax: 5 }
+                    }
+                }
+            });
+        }
+
+        window.closeAnalyticsModal = function() {
+            document.getElementById('analyticsModal').classList.add('hidden');
+        }
 
         // --- TOAST NOTIFICATION SYSTEM ---
         window.showToast = function(message, type = 'success') {
@@ -178,6 +320,9 @@
                         <div class="card-actions">
                             <button onclick="openEditModal('${doc.id}')" class="btn-card-action btn-view"><i class="fas fa-eye"></i> View / Edit</button>
                             <button onclick="requestDelete('${doc.id}')" class="btn-card-action btn-delete"><i class="fas fa-trash-alt"></i></button>
+                            <button onclick="openAnalytics('${doc.id}', '${shop.name}')" class="btn-card-action" style="background:#673AB7; color:white;">
+                                <i class="fas fa-chart-line"></i> Stats
+                            </button>
                         </div>
                     `;
                     grid.appendChild(card);
