@@ -95,9 +95,22 @@ button { cursor: pointer; border: none; border-radius: 10px; transition: 0.2s; f
 .info-item span, .info-item a { font-size: 0.9rem; color: var(--text-dark); word-break: break-word; }
 
 /* AI Assistant */
-.ai-fab { position: fixed; bottom: 30px; right: 30px; z-index: 1000; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.ai-fab { position: fixed; bottom: 30px; right: 80px; z-index: 1000; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
 .ai-tag { background: var(--text-dark); color: white; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; }
-#ai-toggle-btn { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; font-size: 1.5rem; box-shadow: 0 4px 15px rgba(25,118,210,0.4); }
+#ai-toggle-btn {
+  /* Change background to white */
+  background: #ffffff; 
+  
+  /* Change icon color to your primary blue */
+  color: var(--primary); 
+  
+  /* Keep the rest the same... */
+  width: 60px; height: 60px; border-radius: 50%;
+  border: none;
+  box-shadow: 0 8px 20px rgba(25, 118, 210, 0.4);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem;
+}
 #ai-toggle-btn:hover { transform: scale(1.1); }
 
 .ai-modal {
