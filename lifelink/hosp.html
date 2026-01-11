@@ -1,106 +1,161 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>LifeLink Hospital Directory</title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  
-  <link rel="stylesheet" href="./css/hosp.css" /> </head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeLink - Hospital Locator</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
 <body>
 
-  <header>
-    <h1>LifeLink <span class="subtitle">Hospital Directory</span></h1>
-  </header>
+    <header>
+        <h1>
+            <i class="fa-solid fa-heart-pulse"></i> 
+            LifeLink
+        </h1>
+        <span class="subtitle">Emergency Locator</span>
+    </header>
 
-  <div class="container">
-    
-    <div class="sidebar">
-      
-      <div class="search-panel">
-        <div class="input-group">
-          <input type="text" id="pincode-input" placeholder="Enter Pincode" maxlength="6" />
-          <button id="search-btn">Search</button>
-        </div>
-        <div class="divider"><span>OR</span></div>
-        <button id="detect-btn" class="outline-btn">📍 Detect My Location</button>
-      </div>
-
-      <div class="controls">
-        <label>Search Radius: <span id="radius-val">5</span> km</label>
-        <input type="range" id="radius-slider" min="1" max="10" value="5" step="1">
-        <div class="range-labels">
-          <span>1km</span><span>10km</span>
-        </div>
-      </div>
-
-      <div id="hospital-list">
-        <div class="empty-state">
-          <p>Enter a pincode or detect your location to find nearby hospitals.</p>
-        </div>
-      </div>
-
-      <div id="hospital-details" style="display:none;">
-        <button id="back-btn">← Back to List</button>
-        <h2 id="detail-name">Hospital Name</h2>
+    <div class="container">
         
-        <div class="info-section">
-          <div class="info-item">
-            <span class="icon">📍</span>
-            <span id="detail-address">Loading...</span>
-          </div>
-          <div class="info-item">
-            <span class="icon">📞</span>
-            <span id="detail-phone">Not available</span>
-          </div>
-          <div class="info-item">
-            <span class="icon">🌐</span>
-            <a id="detail-website" href="#" target="_blank">Not available</a>
-          </div>
-          <div class="info-item">
-            <span class="icon">🕒</span>
-            <span id="detail-hours">Not available</span>
-          </div>
+        <aside class="sidebar">
+            
+            <div class="search-panel">
+                <div class="input-group">
+                    <input type="text" id="pincode-input" placeholder="Enter Pincode (e.g. 700156)">
+                    <button id="search-btn"><i class="fa-solid fa-search"></i></button>
+                </div>
+                
+                <div class="divider"><span>OR</span></div>
+                
+                <button class="outline-btn" id="locate-me-btn">
+                    <i class="fa-solid fa-location-crosshairs"></i> Use My Location
+                </button>
+            </div>
+
+            <div id="hospital-list">
+                <div class="hospital-card" onclick="showDetails()">
+                    <strong>City Life Hospital</strong>
+                    <p>New Town, Action Area I</p>
+                    <span class="distance-tag">1.2 km</span>
+                </div>
+
+                <div class="hospital-card">
+                    <strong>Apollo Clinic</strong>
+                    <p>Salt Lake, Sector V</p>
+                    <span class="distance-tag">3.5 km</span>
+                </div>
+
+                <div class="hospital-card">
+                    <strong>Ohio Heart Group</strong>
+                    <p>Main Road, City Center</p>
+                    <span class="distance-tag">4.8 km</span>
+                </div>
+            </div>
+
+            <div id="hospital-details" style="display: none;">
+                <button id="back-btn" onclick="hideDetails()">
+                    <i class="fa-solid fa-arrow-left"></i> Back to list
+                </button>
+                
+                <h2 id="detail-name">City Life Hospital</h2>
+                
+                <div class="info-section">
+                    <div class="info-item">
+                        <i class="fa-solid fa-map-pin icon"></i>
+                        <span id="detail-address">123, Street Name, New Town, West Bengal</span>
+                    </div>
+                    
+                    <div class="info-item">
+                        <i class="fa-solid fa-phone icon"></i>
+                        <span id="detail-phone">+91 98765 43210</span>
+                    </div>
+                    
+                    <div class="info-item">
+                        <i class="fa-solid fa-bed icon"></i>
+                        <span id="detail-beds">12 Beds Available</span>
+                    </div>
+                    
+                    <div class="info-item">
+                        <i class="fa-solid fa-globe icon"></i>
+                        <a href="#" id="detail-website" target="_blank">Visit Website</a>
+                    </div>
+                </div>
+            </div>
+
+        </aside>
+
+        <div id="map">
+            <div style="width:100%; height:100%; background: #e0e0e0; display:flex; align-items:center; justify-content:center; color:#888;">
+                <p>Map Area (Leaflet/Google Maps)</p>
+            </div>
         </div>
-      </div>
+
     </div>
 
-    <div id="map"></div>
-  </div>
-
-  <div id="ai-fab" class="ai-fab">
-    <div class="ai-tag">Personalized Search ✨</div>
-    <button id="ai-toggle-btn">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M12 2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2 2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
-        <path d="M19 11v-2a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v2a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h1v3a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-3h1a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2z"/>
-        <path d="M9 11h.01"/><path d="M15 11h.01"/>
-      </svg>
-    </button>
-  </div>
-
-  <div id="ai-modal" class="ai-modal">
-    <div class="ai-header">
-      <h3>🏥 Health Assistant</h3>
-      <button id="close-ai">×</button>
+    <div class="ai-fab">
+        <div class="ai-tag">Need Help?</div>
+        <button id="ai-toggle-btn" aria-label="Open AI Assistant">
+            <i class="fa-solid fa-robot"></i>
+        </button>
     </div>
-    <div class="ai-body" id="ai-chat-body">
-      <div class="ai-msg bot">
-        Hello! Find hospitals on the map first, then tell me what you need (e.g., "Heart surgery", "Pediatrician").
-      </div>
-    </div>
-    <div class="ai-input-area">
-      <input type="text" id="ai-input" placeholder="Ask for services..." />
-      <button id="ai-send-btn">➤</button>
-    </div>
-  </div>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script type="module" src="./js/hosp.js"></script> </body>
+    <div class="ai-modal" id="ai-modal">
+        <div class="ai-header">
+            <h3><i class="fa-solid fa-sparkles"></i> LifeLink AI</h3>
+            <button id="close-ai"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        
+        <div class="ai-body" id="chat-body">
+            <div class="ai-msg bot">
+                Hello! I can help you find specialists or check bed availability.
+            </div>
+            
+            <div class="ai-msg user">
+                Is there an orthopedic doctor nearby?
+            </div>
+             <div class="ai-msg bot">
+                Yes, City Life Hospital (1.2km away) has an orthopedic specialist available.
+            </div>
+        </div>
+        
+        <div class="ai-input-area">
+            <input type="text" id="ai-input" placeholder="Ask something...">
+            <button id="ai-send-btn"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+    </div>
 
+    <script>
+        // Toggle AI Modal
+        const aiModal = document.getElementById('ai-modal');
+        const aiBtn = document.getElementById('ai-toggle-btn');
+        const closeAi = document.getElementById('close-ai');
+
+        aiBtn.addEventListener('click', () => {
+            aiModal.classList.add('active');
+        });
+
+        closeAi.addEventListener('click', () => {
+            aiModal.classList.remove('active');
+        });
+
+        // Toggle Hospital Details (Visual Demo)
+        function showDetails() {
+            document.getElementById('hospital-list').style.display = 'none';
+            document.getElementById('hospital-details').style.display = 'flex';
+        }
+
+        function hideDetails() {
+            document.getElementById('hospital-details').style.display = 'none';
+            document.getElementById('hospital-list').style.display = 'block';
+        }
+    </script>
+</body>
 </html>
-
