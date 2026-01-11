@@ -5,33 +5,79 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel | CampHub</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .animate-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
 <body class="bg-slate-50 min-h-screen font-sans">
 
-    <nav class="bg-red-600 p-6 shadow-lg flex justify-between items-center text-white">
-        <div class="flex items-center gap-2">
-            <span class="text-2xl">🛡️</span>
-            <h1 class="text-xl font-black uppercase italic">System Admin</h1>
+    <nav class="bg-red-400 p-6 shadow-md">
+        <div class="max-w-7xl mx-auto grid grid-cols-3 items-center">
+            <div class="flex justify-start">
+                <a href="index.html" class="flex items-center gap-2 hover:opacity-80 transition-all">
+                    <span class="text-2xl">⛺</span>
+                    <h1 class="text-xl font-black uppercase tracking-tighter text-slate-900">LifeLink</h1>
+                </a>
+            </div>
+
+            <div class="flex justify-center">
+                <h2 class="text-xl font-black uppercase text-yellow-900 tracking-widest whitespace-nowrap">
+                    SYSTEM ADMIN
+                </h2>
+            </div>
+
+            <div class="flex justify-end"></div>
         </div>
-        <button onclick="window.location.href='camps-dashboard.html'" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg font-black text-[10px] uppercase">Back to Dashboard</button>
     </nav>
 
-    <main class="max-w-4xl mx-auto py-12 px-6">
-        <section class="mb-12">
-            <h2 class="text-2xl font-black uppercase italic text-slate-800 mb-6 flex items-center gap-2">
-                <span class="bg-red-600 text-white p-2 rounded-lg text-xs">👤</span> Maker Applications
-            </h2>
-            <div id="pendingMakersList" class="grid grid-cols-1 gap-4">
+    <main class="max-w-6xl mx-auto py-12 px-6">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+            <div onclick="showSection('makers')" class="group cursor-pointer bg-white p-10 rounded-[3rem] shadow-xl border-4 border-slate-100 hover:border-red-500 transition-all active:scale-95">
+                <div class="bg-red-100 w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform">👤</div>
+                <h3 class="text-2xl font-black text-slate-800 uppercase italic">Maker Applications</h3>
+                <p class="text-slate-500 font-medium mt-2">Review and approve new camp organizers.</p>
+                <div class="mt-6 flex items-center gap-2 text-red-600 font-black text-sm uppercase tracking-widest">
+                    Open Requests →
                 </div>
-        </section>
+            </div>
 
-        <section>
-            <h2 class="text-2xl font-black uppercase italic text-slate-800 mb-6 flex items-center gap-2">
-                <span class="bg-red-600 text-white p-2 rounded-lg text-xs">⛺</span> Camp Submissions
-            </h2>
-            <div id="pendingCampsList" class="grid grid-cols-1 gap-4">
+            <div onclick="showSection('camps')" class="group cursor-pointer bg-white p-10 rounded-[3rem] shadow-xl border-4 border-slate-100 hover:border-green-500 transition-all active:scale-95">
+                <div class="bg-green-100 w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mb-6 group-hover:scale-110 transition-transform">✅</div>
+                <h3 class="text-2xl font-black text-slate-800 uppercase italic">Live Camps</h3>
+                <p class="text-slate-500 font-medium mt-2">Manage and delete camps currently on the map.</p>
+                <div class="mt-6 flex items-center gap-2 text-green-600 font-black text-sm uppercase tracking-widest">
+                    Manage Live Data →
                 </div>
-        </section>
+            </div>
+        </div>
+
+        <div id="contentDisplay" class="hidden animate-in">
+            <div class="flex items-center justify-between mb-8 border-b-2 border-slate-100 pb-4">
+                <h2 id="sectionTitle" class="text-3xl font-black uppercase italic text-slate-800">Section</h2>
+                <button onclick="hideSection()" class="bg-slate-200 hover:bg-red-100 hover:text-red-600 text-slate-500 px-4 py-2 rounded-xl font-black uppercase text-[10px] transition-all">✕ Close Section</button>
+            </div>
+
+            <div id="pendingMakersList" class="hidden grid grid-cols-1 gap-4">
+                </div>
+
+            <div id="campSubContainer" class="hidden space-y-12">
+                
+
+                <section>
+                    <h3 class="text-xs font-black text-green-600 uppercase tracking-widest mb-4 italic">Approved & Live on Map</h3>
+                    <div id="approvedCampsList" class="grid grid-cols-1 gap-4">
+                        </div>
+                </section>
+
+            </div>
+        </div>
     </main>
 
     <script type="module" src="js/camps-admin.js"></script>

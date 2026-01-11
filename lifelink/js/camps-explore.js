@@ -7,24 +7,29 @@ import {
 let map, markerGroup;
 let userLat, userLng;
 let currentUser = null;
-let userRegistrations = []; // Local array to track joined camp IDs
+let userRegistrations = [];
 
 // Initialize Map
 map = L.map('map').setView([22.5726, 88.3639], 12);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 markerGroup = L.layerGroup().addTo(map);
 
+// --- ELEMENTS ---
+const locationStatus = document.getElementById("locationStatus");
+const searchInput = document.getElementById("searchInput");
+const locateMeBtn = document.getElementById("locateMeBtn");
+const searchBtn = document.getElementById("searchBtn");
+
+// --- AUTH STATE ---
 onAuthStateChanged(auth, async (user) => {
     if (!user) {
         window.location.href = "login.html";
     } else {
         currentUser = user;
-        // Fetch current user's registrations on load
         await fetchUserRegistrations();
     }
 });
 
-// Helper to fetch user registrations
 async function fetchUserRegistrations() {
     if (!currentUser) return;
     const q = query(collection(db, "camp_registrations"), where("userId", "==", currentUser.uid));
@@ -32,34 +37,79 @@ async function fetchUserRegistrations() {
     userRegistrations = snap.docs.map(doc => doc.data().campId);
 }
 
-// Calculate Distance
-function getDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371; 
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-              Math.sin(dLon/2) * Math.sin(dLon/2);
-    return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
-}
-
-// Search Logic
-document.getElementById("searchBtn").onclick = async () => {
-    const queryStr = document.getElementById("searchInput").value;
-    if (!queryStr) return;
-
-    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(queryStr)}`);
-    const data = await res.json();
-    
-    if (data.length > 0) {
-        userLat = data[0].lat;
-        userLng = data[0].lon;
-        map.setView([userLat, userLng], 13);
-        loadCamps();
+// --- GEOLOCATION LOGIC (USE MY LOCATION BUTTON) ---
+locateMeBtn.onclick = () => {
+    if (navigator.geolocation) {
+        locationStatus.innerText = "🌐 Accessing GPS...";
+        
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                userLat = position.coords.latitude;
+                userLng = position.coords.longitude;
+                
+                locationStatus.innerText = "📍 Identifying City...";
+                map.setView([userLat, userLng], 13);
+                
+                // Reverse Geocode to fill the input field
+                await getCityFromCoords(userLat, userLng);
+                
+                // Automatically load camps based on new coords
+                loadCamps(); 
+            },
+            (error) => {
+                locationStatus.innerText = "❌ Location Access Denied.";
+            }
+        );
+    } else {
+        locationStatus.innerText = "❌ Browser doesn't support Geolocation.";
     }
 };
 
+// Helper: Convert Lat/Lng to City Name for UI
+async function getCityFromCoords(lat, lon) {
+    try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+        const data = await res.json();
+        const city = data.address.city || data.address.town || data.address.village;
+        if (city) {
+            searchInput.value = city;
+            locationStatus.innerText = `✅ Found: ${city}`;
+        }
+    } catch (e) { 
+        console.log("Reverse geocode failed"); 
+        locationStatus.innerText = "📍 Positioned on map.";
+    }
+}
+
+// --- MANUAL SEARCH LOGIC (GO BUTTON) ---
+searchBtn.onclick = async () => {
+    const queryStr = searchInput.value;
+    if (!queryStr) return;
+    
+    locationStatus.innerText = "🔍 Searching...";
+
+    try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(queryStr)}`);
+        const data = await res.json();
+        
+        if (data.length > 0) {
+            userLat = parseFloat(data[0].lat);
+            userLng = parseFloat(data[0].lon);
+            map.setView([userLat, userLng], 13);
+            loadCamps();
+            locationStatus.innerText = "";
+        } else {
+            locationStatus.innerText = "❓ Area not found.";
+        }
+    } catch (err) {
+        locationStatus.innerText = "❌ Search service error.";
+    }
+};
+
+// --- CORE LOAD CAMPS FUNCTION ---
 async function loadCamps() {
+    if (!userLat || !userLng) return;
+
     const q = query(collection(db, "camps"), where("status", "==", "active"));
     const snap = await getDocs(q);
     const listContainer = document.getElementById("campList");
@@ -80,22 +130,34 @@ async function loadCamps() {
     });
 
     if (!found) {
-        listContainer.innerHTML = `<p class="text-center py-10 text-slate-400 font-bold">No camps found in this area.</p>`;
+        listContainer.innerHTML = `<p class="text-center py-10 text-slate-400 font-bold italic text-sm">No camps found within 20km.</p>`;
     }
 }
 
+// --- DISTANCE CALCULATION ---
+function getDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371; 
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+    return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
+}
+
+// --- UI RENDERING ---
 function renderCampCard(id, camp, dist) {
     const isJoined = userRegistrations.includes(id);
     const div = document.createElement("div");
-    div.className = "bg-white p-6 rounded-[2rem] shadow-md border-2 border-transparent hover:border-yellow-400 transition-all";
+    div.className = "bg-white p-6 rounded-[2rem] shadow-md border-2 border-transparent hover:border-yellow-400 transition-all mb-4";
     
     div.innerHTML = `
         <div class="flex justify-between items-start mb-2">
-            <h3 class="font-black text-lg text-slate-800">${camp.campTitle}</h3>
-            <span class="text-[10px] bg-yellow-100 px-2 py-1 rounded-full font-black">${dist.toFixed(1)} km</span>
+            <h3 class="font-black text-lg text-slate-800 uppercase italic">${camp.campTitle}</h3>
+            <span class="text-[10px] bg-yellow-100 px-2 py-1 rounded-full font-black text-yellow-700">${dist.toFixed(1)} km</span>
         </div>
         <p class="text-sm text-slate-500 mb-4 line-clamp-2">${camp.campDescription}</p>
-        <div class="text-xs font-bold text-slate-400 flex gap-4 mb-4 uppercase">
+        <div class="text-[10px] font-black text-slate-400 flex gap-4 mb-4 uppercase tracking-widest">
             <span>📅 ${camp.campDate}</span>
             <span>⏰ ${camp.startTime}</span>
         </div>
@@ -112,17 +174,17 @@ function renderCampCard(id, camp, dist) {
 function addMapMarker(camp) {
     const customIcon = L.divIcon({
         className: 'custom-div-icon',
-        html: `<div style='background-color: #facc15; width: 30px; height: 30px; border-radius: 50%; border: 3px solid white; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); font-size: 15px;'>⛺</div>`,
-        iconSize: [30, 30],
-        iconAnchor: [15, 30]
+        html: `<div style='background-color: #facc15; width: 34px; height: 34px; border-radius: 50%; border: 3px solid white; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2); font-size: 16px;'>⛺</div>`,
+        iconSize: [34, 34],
+        iconAnchor: [17, 34]
     });
 
     L.marker([camp.lat, camp.lng], {icon: customIcon})
      .addTo(markerGroup)
-     .bindPopup(`<b class="font-black text-yellow-600">${camp.campTitle}</b><br>${camp.locationText}`);
+     .bindPopup(`<div class="p-2"><b class="font-black text-yellow-600 uppercase text-xs">${camp.campTitle}</b><br><span class="text-[10px] font-bold text-slate-400">${camp.locationText || 'Active Camp'}</span></div>`);
 }
 
-// Modal Logic
+// --- MODAL & REGISTRATION ---
 window.openRegModal = (id, title, date) => {
     document.getElementById("selectedCampId").value = id;
     document.getElementById("modalTitle").innerText = title;
@@ -144,7 +206,6 @@ document.getElementById("registrationForm").onsubmit = async (e) => {
     btn.innerText = "Registering...";
 
     try {
-        // 1. Check database for existing registration again for safety
         const checkQ = query(
             collection(db, "camp_registrations"), 
             where("userId", "==", currentUser.uid),
@@ -159,7 +220,6 @@ document.getElementById("registrationForm").onsubmit = async (e) => {
             return;
         }
 
-        // 2. Perform Registration
         await addDoc(collection(db, "camp_registrations"), {
             campId: campId,
             userId: currentUser.uid,
@@ -169,15 +229,9 @@ document.getElementById("registrationForm").onsubmit = async (e) => {
             status: "confirmed"
         });
 
-        // 3. Update UI Immediately
-        userRegistrations.push(campId); // Update local state
+        userRegistrations.push(campId);
         updateButtonState(mainListBtn);
         closeModal();
-        
-        // Use a clean custom alert instead of browser alert if possible, 
-        // but sticking to standard alert for simplicity as per your current logic
-        console.log("Registered successfully");
-
     } catch (err) {
         alert(err.message);
     } finally {
@@ -186,7 +240,6 @@ document.getElementById("registrationForm").onsubmit = async (e) => {
     }
 };
 
-// Function to visually disable the main list button
 function updateButtonState(btnElement) {
     if (btnElement) {
         btnElement.innerText = "Registered";

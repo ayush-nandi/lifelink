@@ -3,29 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Explore Camps</title>
+    <title>Explore Camps | LifeLink</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body class="bg-yellow-50 min-h-screen">
-    <nav class="bg-yellow-400 p-6 shadow-md flex justify-between items-center">
-        <h1 class="text-xl font-black uppercase text-yellow-900">Discover Camps</h1>
-        <button onclick="window.location.href='camps-dashboard.html'" class="bg-white/40 px-4 py-2 rounded-lg font-bold text-sm">Dashboard</button>
+
+    <nav class="bg-yellow-400 p-6 shadow-md">
+        <div class="max-w-7xl mx-auto grid grid-cols-3 items-center">
+            <div class="flex justify-start">
+                <a href="index.html" class="flex items-center gap-2 hover:opacity-80 transition-all">
+                    <span class="text-2xl">⛺</span>
+                    <h1 class="text-xl font-black uppercase tracking-tighter text-slate-900">LifeLink</h1>
+                </a>
+            </div>
+
+            <div class="flex justify-center">
+                <h2 class="text-xl font-black uppercase text-yellow-900 tracking-widest whitespace-nowrap">
+                    Discover Camps
+                </h2>
+            </div>
+
+            <div class="flex justify-end"></div>
+        </div>
     </nav>
 
     <main class="max-w-7xl mx-auto py-8 px-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div class="lg:col-span-1 space-y-6">
-            <div class="bg-white p-6 rounded-[2rem] shadow-xl border-4 border-yellow-400">
-                <h2 class="font-black text-lg mb-4">Find Camps Near You</h2>
+            
+            <div class="bg-white p-8 rounded-[3rem] shadow-xl border-4 border-yellow-400">
+                <h2 class="font-black text-lg mb-6 text-center text-slate-800">Find Camps Near You</h2>
+                
                 <div class="flex gap-2">
-                    <input type="text" id="searchInput" placeholder="Enter city or area..." class="w-full p-4 bg-yellow-50 rounded-xl outline-none ring-2 ring-yellow-100 focus:ring-yellow-400">
-                    <button id="searchBtn" class="bg-yellow-400 px-6 rounded-xl font-black">Go</button>
+                    <input type="text" id="searchInput" placeholder="Enter city or area..." 
+                        class="flex-1 p-4 bg-yellow-50 rounded-2xl outline-none ring-2 ring-yellow-100 focus:ring-yellow-400 font-bold placeholder:text-slate-400 text-slate-700">
+                    <button id="searchBtn" class="bg-green-700 hover:bg-green-800 text-white px-6 rounded-2xl font-black transition-all active:scale-95 shadow-md uppercase text-xs">
+                        Go
+                    </button>
+                </div>
+
+                <div class="flex items-center my-6">
+                    <div class="flex-1 border-t-2 border-slate-100"></div>
+                    <span class="px-4 text-slate-400 font-black text-[10px] uppercase tracking-widest">OR</span>
+                    <div class="flex-1 border-t-2 border-slate-100"></div>
+                </div>
+
+                <div class="flex flex-col items-center">
+                    <button id="locateMeBtn" type="button" class="flex items-center gap-2 px-8 py-3 rounded-full border-2 border-green-700 text-green-700 font-black text-[10px] uppercase hover:bg-green-50 transition-all active:scale-95">
+                        <span>📍</span> Use My Current Location
+                    </button>
+                    <p id="locationStatus" class="text-[10px] font-bold text-slate-400 mt-4 uppercase tracking-widest text-center italic"></p>
                 </div>
             </div>
 
             <div id="campList" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
-                <p class="text-center text-slate-400 font-bold py-10">Search an area to see active camps.</p>
+                <p class="text-center text-slate-400 font-bold py-10 italic">Search an area to see active camps.</p>
             </div>
         </div>
 
@@ -35,15 +68,15 @@
     </main>
 
     <div id="regModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-[1000] p-6">
-        <div class="bg-white w-full max-w-md rounded-[3rem] p-10 relative">
-            <h2 id="modalTitle" class="text-2xl font-black mb-2 text-yellow-600">Register for Camp</h2>
+        <div class="bg-white w-full max-w-md rounded-[3rem] p-10 relative shadow-2xl">
+            <h2 id="modalTitle" class="text-2xl font-black mb-2 text-yellow-600 uppercase italic">Register for Camp</h2>
             <p id="modalDate" class="text-sm font-bold text-slate-400 mb-6 uppercase tracking-widest"></p>
             <form id="registrationForm" class="space-y-4">
                 <input type="hidden" id="selectedCampId">
-                <input type="text" id="regName" placeholder="Your Full Name" required class="w-full p-4 bg-yellow-50 rounded-xl outline-none">
-                <input type="tel" id="regPhone" placeholder="Mobile Number" required class="w-full p-4 bg-yellow-50 rounded-xl outline-none">
-                <button type="submit" class="w-full bg-yellow-400 py-4 rounded-2xl font-black text-lg hover:bg-yellow-500 transition-all">Confirm Registration</button>
-                <button type="button" onclick="closeModal()" class="w-full text-slate-400 font-bold py-2">Cancel</button>
+                <input type="text" id="regName" placeholder="Your Full Name" required class="w-full p-4 bg-yellow-50 rounded-xl outline-none ring-2 ring-yellow-100 focus:ring-yellow-400 font-bold">
+                <input type="tel" id="regPhone" placeholder="Mobile Number" required class="w-full p-4 bg-yellow-50 rounded-xl outline-none ring-2 ring-yellow-100 focus:ring-yellow-400 font-bold">
+                <button type="submit" class="w-full bg-yellow-400 py-4 rounded-2xl font-black text-lg hover:bg-yellow-500 transition-all border-b-4 border-yellow-600 active:border-b-0 active:translate-y-1">Confirm Registration</button>
+                <button type="button" onclick="closeModal()" class="w-full text-slate-400 font-black text-xs uppercase tracking-widest py-2">Cancel</button>
             </form>
         </div>
     </div>
