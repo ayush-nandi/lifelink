@@ -6,7 +6,7 @@ let userLng = null;
 let allHospitalsData = []; 
 
 // --- CONFIGURATION ---
-const GEMINI_API_KEY = "AIzaSyDivEYyqUp8Xz35YJ6Fl61QtwE8FSrc4CQ"; 
+const GEMINI_API_KEY = "AIzaSyB3k9aKE-Jj4I87EYIIUVJKjM4iwofMueM"; 
 
 // --- ICONS ---
 const hospitalIcon = new L.Icon({
