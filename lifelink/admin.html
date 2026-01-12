@@ -6,92 +6,105 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <style>
-    body { font-family: 'Inter', sans-serif; }
+    body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
     .badge-pulse { animation: pulse 2s infinite; }
     @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
     .glass-nav { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); }
     .admin-card:hover { transform: translateY(-5px); border-color: #ef4444; }
+    /* Mobile optimization for modal */
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+    #map { height: 200px; width: 100%; z-index: 10; border-radius: 1.5rem; }
   </style>
 </head>
 <body class="bg-slate-50 min-h-screen pb-20">
 
-  <nav class="glass-nav border-b border-slate-200 px-8 py-5 flex justify-between items-center sticky top-0 z-[100]">
-    <div class="flex items-center gap-4">
+  <nav class="glass-nav border-b border-slate-200 px-4 md:px-8 py-4 md:py-5 flex justify-between items-center sticky top-0 z-[100]">
+    <div class="flex items-center gap-3">
       <a href="index.html" class="flex items-center gap-2 group transition-all">
-        <h1 class="text-3xl font-black text-red-600 tracking-tighter italic">LifeLink</h1>
-        <span class="text-[10px] font-black text-slate-400 border border-slate-200 px-2 py-1 rounded-md tracking-widest uppercase mt-1">Super Admin</span>
+        <h1 class="text-2xl md:text-3xl font-black text-red-600 tracking-tighter italic">LifeLink</h1>
+        <span class="hidden md:block text-[10px] font-black text-slate-400 border border-slate-200 px-2 py-1 rounded-md tracking-widest uppercase mt-1">Super Admin</span>
       </a>
     </div>
     
-    <div class="flex items-center gap-6">
-      <a href="dashboard.html" class="px-6 py-2.5 bg-slate-900 text-white rounded-2xl text-sm font-bold hover:shadow-xl transition-all">
-        ← Exit Console
+    <div class="flex items-center gap-4">
+      <a href="dashboard.html" class="px-4 md:px-6 py-2 bg-slate-900 text-white rounded-xl md:rounded-2xl text-[10px] md:text-sm font-bold hover:shadow-xl transition-all">
+        ← Exit
       </a>
     </div>
   </nav>
 
-  <main class="max-w-7xl mx-auto p-8">
+  <main class="max-w-7xl mx-auto p-4 md:p-8">
     
-    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+    <section class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8 md:mb-12">
       
-      <button onclick="switchTab('host')" class="relative bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-200 hover:shadow-2xl transition-all text-left group">
-        <div id="badge-host" class="hidden absolute top-4 right-4 bg-red-600 text-white text-[11px] font-black px-3 py-1 rounded-full badge-pulse shadow-lg">0</div>
-        <div class="w-14 h-14 bg-red-50 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform">🏢</div>
-        <h3 class="text-xl font-bold text-slate-900 leading-tight">Host Requests</h3>
-        <p class="text-slate-400 text-[10px] mt-1 font-black uppercase tracking-widest">Verify Organizations</p>
+      <button onclick="switchTab('host')" class="relative bg-white p-5 md:p-8 rounded-[2rem] md:rounded-[2.5rem] shadow-sm border border-slate-200 hover:shadow-2xl transition-all text-left group">
+        <div id="badge-host" class="hidden absolute top-3 right-3 bg-red-600 text-white text-[9px] md:text-[11px] font-black px-2 md:px-3 py-1 rounded-full badge-pulse shadow-lg">0</div>
+        <div class="w-10 h-10 md:w-14 md:h-14 bg-red-50 rounded-xl md:rounded-2xl flex items-center justify-center text-xl md:text-3xl mb-3 md:mb-4 group-hover:scale-110 transition-transform">🏢</div>
+        <h3 class="text-sm md:text-xl font-bold text-slate-900 leading-tight">Host Requests</h3>
+        <p class="text-slate-400 text-[8px] md:text-[10px] mt-1 font-black uppercase tracking-widest">Verify Orgs</p>
       </button>
 
-      <button onclick="switchTab('help')" class="relative bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-200 hover:shadow-2xl transition-all text-left group">
-        <div id="badge-help" class="hidden absolute top-4 right-4 bg-red-600 text-white text-[11px] font-black px-3 py-1 rounded-full shadow-lg">0</div>
-        <div class="w-14 h-14 bg-orange-50 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform">🚨</div>
-        <h3 class="text-xl font-bold text-slate-900 leading-tight">Live Requests</h3>
-        <p class="text-slate-400 text-[10px] mt-1 font-black uppercase tracking-widest">Active Emergency Feed</p>
+      <button onclick="switchTab('help')" class="relative bg-white p-5 md:p-8 rounded-[2rem] md:rounded-[2.5rem] shadow-sm border border-slate-200 hover:shadow-2xl transition-all text-left group">
+        <div id="badge-help" class="hidden absolute top-3 right-3 bg-red-600 text-white text-[9px] md:text-[11px] font-black px-2 md:px-3 py-1 rounded-full shadow-lg">0</div>
+        <div class="w-10 h-10 md:w-14 md:h-14 bg-orange-50 rounded-xl md:rounded-2xl flex items-center justify-center text-xl md:text-3xl mb-3 md:mb-4 group-hover:scale-110 transition-transform">🚨</div>
+        <h3 class="text-sm md:text-xl font-bold text-slate-900 leading-tight">Live Requests</h3>
+        <p class="text-slate-400 text-[8px] md:text-[10px] mt-1 font-black uppercase tracking-widest">Active Feed</p>
       </button>
 
-      <button onclick="switchTab('events')" class="relative bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-200 hover:shadow-2xl transition-all text-left group">
-        <div id="badge-events" class="hidden absolute top-4 right-4 bg-blue-600 text-white text-[11px] font-black px-3 py-1 rounded-full shadow-lg">0</div>
-        <div class="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform">📅</div>
-        <h3 class="text-xl font-bold text-slate-900 leading-tight">All Events</h3>
-        <p class="text-slate-400 text-[10px] mt-1 font-black uppercase tracking-widest">Moderate Drives</p>
+      <button onclick="switchTab('events')" class="relative bg-white p-5 md:p-8 rounded-[2rem] md:rounded-[2.5rem] shadow-sm border border-slate-200 hover:shadow-2xl transition-all text-left group">
+        <div id="badge-events" class="hidden absolute top-3 right-3 bg-blue-600 text-white text-[9px] md:text-[11px] font-black px-2 md:px-3 py-1 rounded-full shadow-lg">0</div>
+        <div class="w-10 h-10 md:w-14 md:h-14 bg-blue-50 rounded-xl md:rounded-2xl flex items-center justify-center text-xl md:text-3xl mb-3 md:mb-4 group-hover:scale-110 transition-transform">📅</div>
+        <h3 class="text-sm md:text-xl font-bold text-slate-900 leading-tight">All Events</h3>
+        <p class="text-slate-400 text-[8px] md:text-[10px] mt-1 font-black uppercase tracking-widest">Manage Drives</p>
       </button>
 
-      <button onclick="switchTab('archives')" class="relative bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-200 hover:shadow-2xl transition-all text-left group">
-        <div class="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center text-3xl mb-4 group-hover:scale-110 transition-transform">🏛️</div>
-        <h3 class="text-xl font-bold text-slate-900 leading-tight">Legacy Vault</h3>
-        <p class="text-slate-400 text-[10px] mt-1 font-black uppercase tracking-widest">Successful History</p>
+      <button onclick="switchTab('organizers')" class="relative bg-white p-5 md:p-8 rounded-[2rem] md:rounded-[2.5rem] shadow-sm border border-slate-200 hover:shadow-2xl transition-all text-left group">
+        <div class="w-10 h-10 md:w-14 md:h-14 bg-purple-50 rounded-xl md:rounded-2xl flex items-center justify-center text-xl md:text-3xl mb-3 md:mb-4 group-hover:scale-110 transition-transform">🛡️</div>
+        <h3 class="text-sm md:text-xl font-bold text-slate-900 leading-tight">Organizers</h3>
+        <p class="text-slate-400 text-[8px] md:text-[10px] mt-1 font-black uppercase tracking-widest">Authority Control</p>
       </button>
 
     </section>
 
-    <section class="bg-white rounded-[3.5rem] shadow-2xl border border-slate-100 min-h-[600px] overflow-hidden">
-      <div class="px-12 py-10 border-b border-slate-50 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-slate-50/30">
+    <section class="bg-white rounded-[2.5rem] md:rounded-[3.5rem] shadow-2xl border border-slate-100 min-h-[500px] overflow-hidden">
+      <div class="px-6 py-8 md:px-12 md:py-10 border-b border-slate-50 flex flex-col md:flex-row md:items-center justify-between gap-6 bg-slate-50/30">
         <div>
-          <h2 id="tabTitle" class="text-4xl font-black text-slate-900 tracking-tighter italic">Intelligence Feed</h2>
-          <p id="tabDesc" class="text-slate-500 font-medium mt-2">Platform-wide data streams monitored in real-time.</p>
+          <h2 id="tabTitle" class="text-3xl md:text-4xl font-black text-slate-900 tracking-tighter italic">Intelligence Feed</h2>
+          <p id="tabDesc" class="text-slate-500 font-medium mt-1 text-xs md:text-base">Select a stream to begin monitoring.</p>
         </div>
-        <div id="tabStats" class="bg-white p-4 rounded-3xl border border-slate-100 shadow-sm flex gap-8 px-8">
+        <div id="tabStats" class="bg-white p-4 rounded-[2rem] border border-slate-100 shadow-sm flex gap-6 md:gap-8 px-6 md:px-8">
             <div class="text-center">
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">System Health</p>
-                <p class="text-green-500 font-black text-xs uppercase flex items-center gap-2">
-                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Optimal
+                <p class="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">System</p>
+                <p class="text-green-500 font-black text-[10px] md:text-xs uppercase flex items-center gap-2">
+                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Active
                 </p>
             </div>
-            <div class="text-center border-l border-slate-100 pl-8">
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Records</p>
-                <p id="totalRecordsCount" class="text-slate-900 font-black text-xl leading-none">0</p>
+            <div class="text-center border-l border-slate-100 pl-6 md:pl-8">
+                <p class="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Records</p>
+                <p id="totalRecordsCount" class="text-slate-900 font-black text-lg md:text-xl leading-none">0</p>
             </div>
         </div>
       </div>
 
-      <div id="contentGrid" class="p-12 grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div class="col-span-full py-32 text-center opacity-30 italic font-black text-slate-300 uppercase tracking-[0.3em]">
-          Select A Stream Above To Begin
+      <div id="contentGrid" class="p-6 md:p-12 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
         </div>
-      </div>
     </section>
-
   </main>
+
+  <div id="detailModal" class="hidden fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+    <div class="bg-white w-full max-w-2xl rounded-[2.5rem] md:rounded-[3rem] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+      <div class="p-6 md:p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+        <h2 id="modalTitle" class="text-xl md:text-2xl font-black italic text-slate-900 tracking-tighter">Information Details</h2>
+        <button onclick="closeModal()" class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 text-slate-400 hover:text-red-500 transition-colors">✕</button>
+      </div>
+      <div id="modalContent" class="p-6 md:p-8 overflow-y-auto custom-scrollbar">
+        </div>
+    </div>
+  </div>
 
   <script type="module" src="./js/admin.js"></script>
 </body>
